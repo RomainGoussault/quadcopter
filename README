@@ -1,0 +1,19 @@
+A faire
+
+1/raccorder récepteur radio (utiliser pin snootlab + en faire d'autre)
+2/test moteur
+3/utiliser IMU
+
+
+
+=========================================
+		PWM
+=========================================
+
+
+1) Arduino 2560 has 12 pins supporting PWM. They are from 2 to 13 included.
+
+2) the PWM default frequency is 490 Hz for all pins, with the exception of pin 13 and 4,
+whose frequency is 980 Hz (I checked with an oscilloscope).
+
+lien pour changer les fréquences: http://forum.arduino.cc/index.php?topic=72092.0
