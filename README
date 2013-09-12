@@ -1,10 +1,44 @@
-A faire
-
-1/raccorder récepteur radio (utiliser pin snootlab + en faire d'autre)
-2/test moteur
-3/utiliser IMU
+Code in progress to control a quadcopter on Arduino MEGA 2560.
 
 
+
+TODO:
+
+3/équilibrer hélices
+
+4/control
+6/autozero
+5/gere 2kpi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=========================================
+		IMU
+=========================================
+
+rouge VDD
+noir GND
+bleu SDA
+vert SCL
 
 =========================================
 		PWM

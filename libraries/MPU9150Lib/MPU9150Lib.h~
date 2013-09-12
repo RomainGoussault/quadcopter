@@ -28,42 +28,13 @@
 #include "MPUQuaternion.h"
 #include "CalLib.h"
 
-
-
-
-//  DEVICE_TO_USE selects whether the IMU at address 0x68 (default) or 0x69 is used
-//    0 = use the device at 0x68
-//    1 = use the device at ox69
-#define  DEVICE_TO_USE    1
-
-#define MPU_UPDATE_RATE  (50)
-
-//  MAG_UPDATE_RATE should be less than or equal to the MPU_UPDATE_RATE
-#define MAG_UPDATE_RATE  (10)
-
-//  MPU_MAG_MIX defines the influence that the magnetometer has on the yaw output.
-//  The magnetometer itself is quite noisy so some mixing with the gyro yaw can help
-//  significantly. Some example values are defined below:
-#define  MPU_MAG_MIX_GYRO_ONLY          0                   // just use gyro yaw
-#define  MPU_MAG_MIX_MAG_ONLY           1                   // just use magnetometer and no gyro yaw
-#define  MPU_MAG_MIX_GYRO_AND_MAG       10                  // a good mix value 
-#define  MPU_MAG_MIX_GYRO_AND_SOME_MAG  50                  // mainly gyros with a bit of mag correction 
-
-//  MPU_LPF_RATE is the low pas filter rate and can be between 5 and 188Hz
-#define MPU_LPF_RATE   40
-
-
-
 //  Define this symbol to get debug info
+
 #define MPULIB_DEBUG
 
 //  This symbol defines the scaled range for mag and accel values
+
 #define SENSOR_RANGE   4096
-
-
-
-
-
 
 class MPU9150Lib
 {

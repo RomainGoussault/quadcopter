@@ -1,0 +1,58 @@
+#ifndef Radio_h
+#define Radio_h
+
+#include "Arduino.h"
+
+
+//Constants
+// Assign your channel in pins
+#define CH1_IN_PIN A12
+#define CH2_IN_PIN A14
+#define CH3_IN_PIN A15
+#define CH4_IN_PIN A10
+#define CH5_IN_PIN A13
+#define CH6_IN_PIN A11
+
+#define MAX_1 2048
+#define MAX_2 1984
+#define MAX_3 1940
+#define MAX_4 1960
+#define MAX_5 2032
+#define MAX_6 2032
+
+
+#define MIN_1 968
+#define MIN_2 952
+#define MIN_3 869
+#define MIN_4 880//908
+#define MIN_5 936
+#define MIN_6 936
+
+#define MID_5 (MAX_5 + MIN_5)/2
+#define MID_6 (MAX_6 + MIN_6)/2
+
+#define MAP_RADIO_HIGH 100
+#define MAP_RADIO_LOW 0
+
+#define CH1_FLAG 1
+#define CH2_FLAG 2
+#define CH3_FLAG 4
+#define CH4_FLAG 8
+#define CH5_FLAG 16
+#define CH6_FLAG 32
+
+
+
+
+class Radio
+{
+  public:
+    Radio(int pin);
+    void dot();
+    void dash();
+  private:
+    int _pin;
+};
+
+#endif
+
