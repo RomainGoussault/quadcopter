@@ -49,7 +49,9 @@ void Motors::setMotorSpeed(byte motor, float speed){
   speed_int = (int) (speed) ;
   analogWrite(motors[motor-1], speed_int);
 
-//Serial.print("speed  ");
+Serial.print(speed_int);
+Serial.print("   z");
+
 //Serial.println(speed_int );
   motor_speeds[motor-1] = speed_int;
 }

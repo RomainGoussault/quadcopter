@@ -15,6 +15,8 @@
 #include "Motors.h"
 #include "FlightControl.h"
 
+#define rac22 0.7071
+
 
 
 //Radio
@@ -26,17 +28,25 @@ int RadioChannels[7];
 
 //IMU
 MPU9150Lib MPU;      // the MPU object
-#define  ROLL_OFFSET -0.40 
-#define  PITCH_OFFSET 3.79  
+#define  ROLL_OFFSET -0.64
+#define  PITCH_OFFSET 0.07
 #define  YAW_OFFSET 0
+
+float currentRoll_1;
+float currentPitch_1;
+float currentYaw_1;
+
+float oldRoll;
+float oldPitch;
+float oldYaw;
 
 float currentRoll;
 float currentPitch;
 float currentYaw;
 
-float alpha = 0.005;
+float alpha = 0.05;
 float currentYawFilter;
-float oldYaw;
+
 
 //Motors
 Motors motors;
@@ -54,11 +64,29 @@ float throttle;
 
 
 
+//Measuring time
+unsigned long previousTime = 0;
+unsigned long currentTime = 0;
+unsigned long deltaTime = 0;
+float  freq = 0;
+#define LOOP_TIME (int) (1000000.0/(float)MPU_UPDATE_RATE )
+
+
+//float loop_rate = (float) MPU_UPDATE_RATE 
+float loop_time =1000.0*1000.0/(float)MPU_UPDATE_RATE ;
+//loop_time= 1000*1000*1/MPU_UPDATE_RATE;
+
+
+
+
+unsigned long start_loop =0;
+
 void setup()
 {
 	Serial.begin( SERIAL_PORT_SPEED);
 	Serial.println("Start");
-
+	Serial.print("Loop time: ");
+	Serial.println( LOOP_TIME);
 
 	//=======================================================================================
 	//                                    RADIO
@@ -90,7 +118,7 @@ void setup()
 	//init of the EMA
 	while (!MPU.read())
 	{
-		currentYawFilter=MPU.m_fusedEulerPose[VEC3_Z] * RAD_TO_DEGREE - YAW_OFFSET;
+		currentYawFilter=MPU.m_fusedEulerPose[VEC3_Z]  - YAW_OFFSET;
 	}
 	//MPU.waitToBeStable();
 
@@ -119,7 +147,16 @@ void setup()
 
 
 void loop()
-{
+{ 
+  // Measure loop rate
+  //
+  currentTime = micros();
+  deltaTime = currentTime - previousTime;
+  previousTime = currentTime;
+  start_loop=micros();
+freq = 1000000/deltaTime ;
+	Serial.print("freq  "); 
+	Serial.println(freq); 
 
 
 	//=======================================================================================
@@ -145,30 +182,53 @@ void loop()
 	//                                    IMU
 	//=======================================================================================
 
-	if (MPU.read())
+	while (MPU.read())
 	{                                        // get the latest data if ready yet
 
 		//  MPU.printVector(MPU.m_calAccel);                       // print the calibrated accel data
 		//  MPU.printVector(MPU.m_calMag);                         // print the calibrated mag data
 		MPU.printAngles(MPU.m_fusedEulerPose);                 // print the output of the data fusion
-		Serial.println("");
-
-
-		//Exponential moving average yaw
+		
+        oldRoll = currentRoll_1;
+        oldPitch = currentPitch_1;
 		oldYaw=currentYawFilter;
 
-		currentRoll= MPU.m_fusedEulerPose[VEC3_X] * RAD_TO_DEGREE - ROLL_OFFSET;
-		currentPitch= MPU.m_fusedEulerPose[VEC3_Y] * RAD_TO_DEGREE - PITCH_OFFSET;
-		currentYaw= MPU.m_fusedEulerPose[VEC3_Z] * RAD_TO_DEGREE - YAW_OFFSET;
+		currentRoll_1= -(MPU.m_fusedEulerPose[VEC3_X] * RAD_TO_DEGREE  - ROLL_OFFSET);
+		currentPitch_1= MPU.m_fusedEulerPose[VEC3_Y] * RAD_TO_DEGREE - PITCH_OFFSET;
+		currentYaw= MPU.m_fusedEulerPose[VEC3_Z] * RAD_TO_DEGREE  - YAW_OFFSET;
 
+//2kpi pb
+if(abs(currentPitch_1)>100   )
+{Serial.println("2kPI PBPBPBPBPBPBPBPBBPPBPBPBPBPBPBPBPBPBBPPBPBPBPBPBPBPBPBPBBPPBPBPBPBPBPBPBPBPBB");
+currentPitch_1=oldPitch;
+}
+
+if(abs(currentRoll_1)>100   )
+{Serial.println("2kPI PBPBPBPBPBPBPBPBBPPBPBPBPBPBPBPBPBPBBPPBPBPBPBPBPBPBPBPBBPPBPBPBPBPBPBPBPBPBB");
+currentRoll_1=oldRoll;
+}
+
+
+
+//45deg rotaion
+		currentRoll = rac22* currentRoll_1 + rac22*currentPitch_1;
+		currentPitch = -rac22* currentRoll_1 + rac22*currentPitch_1;
+
+/*		//Exponential moving average yaw*/
 		currentYawFilter = alpha * currentYaw + (1-alpha) * oldYaw;
 
 		Serial.print("x_c: ");
 		Serial.print( currentRoll );
 		Serial.print("   y_c: ");
-		Serial.print( currentPitch );
+		Serial.print( currentPitch);
 		Serial.print("   z_c: ");
-		Serial.print( currentYawFilter );
+		Serial.print( currentYawFilter);
+Serial.println("");
+
+
+
+
+
 	}
 
 
@@ -177,19 +237,16 @@ void loop()
 	//=======================================================================================
 	//                                    MOTORS
 	//=======================================================================================
-	if(motors_on)
+	if(1)
 	{
-		float speed;
-		speed = map_f(RadioChannels[1],MAP_RADIO_LOW , MAP_RADIO_HIGH, 0, 1000);
-
-
+	
 
 		targetRoll =  map_f(RadioChannels[2], MAP_RADIO_LOW, MAP_RADIO_HIGH, -ROLL_MAX_RADIO, ROLL_MAX_RADIO);
-		targetPitch =  map_f(RadioChannels[4], MAP_RADIO_LOW, MAP_RADIO_HIGH, PITCH_MAX_RADIO, PITCH_MAX_RADIO);
+		targetPitch =  map_f(RadioChannels[4], MAP_RADIO_LOW, MAP_RADIO_HIGH, -PITCH_MAX_RADIO, PITCH_MAX_RADIO);
 		targetYaw =  map_f(RadioChannels[3], MAP_RADIO_LOW, MAP_RADIO_HIGH, -YAW_MAX_RADIO, YAW_MAX_RADIO);
 		throttle = RadioChannels[1];
 
-		flightControl.control( targetRoll, targetPitch,  targetYaw,  currentRoll,  currentPitch,  currentYaw, throttle);
+		flightControl.control( targetRoll, targetPitch,  targetYaw,  currentRoll,  currentPitch,  currentYaw, throttle, motors,   motors_on);
 
 		/*if (u_motor1>100)*/
 		/*{u_motor1=250;*/
@@ -199,8 +256,7 @@ void loop()
 		/*}*/
 
 
-		//motors.setAllSpeed(speed);
-		motors.setMotorSpeed(1,  speed);
+		
 	}
 	else
 	{
@@ -210,10 +266,13 @@ void loop()
 	}
 
 
-	Serial.println("coucou");
+
+while(micros() - start_loop < loop_time)
+{
+
+}
 
 
-	//delay(200);
 }
 
 

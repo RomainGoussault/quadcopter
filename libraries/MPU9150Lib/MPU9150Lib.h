@@ -36,7 +36,7 @@
 //    1 = use the device at ox69
 #define  DEVICE_TO_USE    1
 
-#define MPU_UPDATE_RATE  (50)
+#define MPU_UPDATE_RATE  50
 
 //  MAG_UPDATE_RATE should be less than or equal to the MPU_UPDATE_RATE
 #define MAG_UPDATE_RATE  (10)
