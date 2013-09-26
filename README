@@ -34,6 +34,7 @@ make monitor
 
 git add -u
 git commit -m "bablal"
+git push origin master
 
 
 
