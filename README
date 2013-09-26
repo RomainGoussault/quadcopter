@@ -4,9 +4,13 @@ Code in progress to control a quadcopter on Arduino MEGA 2560.
 
 TODO:
 
-3/équilibrer hélices
-5/gere 2kpi
 
+
+LED
+1/ gérer yaw
+control
+
+make monitor
 
 
 
@@ -28,6 +32,8 @@ TODO:
 
 
 
+git add -u
+git commit -m "bablal"
 
 
 

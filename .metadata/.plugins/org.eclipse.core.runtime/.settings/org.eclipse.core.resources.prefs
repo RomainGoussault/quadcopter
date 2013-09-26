@@ -1,2 +1,5 @@
 eclipse.preferences.version=1
+pathvariable.ArduinoLibPath=/usr/share/arduino/libraries
+pathvariable.ArduinoPath=/usr/share/arduino
+pathvariable.ArduinoPivateLibPath=/home/romain/sketchbook/libraries
 version=1

@@ -1,0 +1,89 @@
+quad.o: quad.ino \
+ /usr/share/arduino/hardware/arduino/cores/arduino/Arduino.h \
+ /usr/share/arduino/hardware/arduino/cores/arduino/binary.h \
+ /usr/share/arduino/hardware/arduino/cores/arduino/WCharacter.h \
+ /usr/share/arduino/hardware/arduino/cores/arduino/WString.h \
+ /usr/share/arduino/hardware/arduino/cores/arduino/HardwareSerial.h \
+ /usr/share/arduino/hardware/arduino/cores/arduino/Stream.h \
+ /usr/share/arduino/hardware/arduino/cores/arduino/Print.h \
+ /usr/share/arduino/hardware/arduino/cores/arduino/Printable.h \
+ /usr/share/arduino/hardware/arduino/cores/arduino/new.h \
+ /usr/share/arduino/hardware/arduino/variants/mega/pins_arduino.h \
+ PinChangeInt.h \
+ /usr/share/arduino/hardware/arduino/cores/arduino/Arduino.h \
+ /usr/share/arduino/hardware/arduino/cores/arduino/wiring_private.h \
+ /usr/share/arduino/hardware/arduino/cores/arduino/Arduino.h \
+ /usr/share/arduino/libraries/Servo/Servo.h Radio.h \
+ /usr/share/arduino/libraries/Wire/Wire.h \
+ /usr/share/arduino/hardware/arduino/cores/arduino/Stream.h \
+ IMU_lib/I2Cdev/I2Cdev.h MPU9150Lib.h IMU_lib/MPU9150Lib/MPUQuaternion.h \
+ IMU_lib/MPU9150Lib/MPUVector3.h IMU_lib/CalLib/CalLib.h \
+ IMU_lib/inv_mpu/inv_mpu.h \
+ IMU_lib/inv_mpu_dmp_motion_driver/inv_mpu_dmp_motion_driver.h \
+ IMU_lib/dmpKey/dmpKey.h IMU_lib/dmpmap/dmpmap.h \
+ /usr/share/arduino/libraries/EEPROM/EEPROM.h Utils.h Motors.h \
+ FlightControl.h Motors.h
+
+/usr/share/arduino/hardware/arduino/cores/arduino/Arduino.h:
+
+/usr/share/arduino/hardware/arduino/cores/arduino/binary.h:
+
+/usr/share/arduino/hardware/arduino/cores/arduino/WCharacter.h:
+
+/usr/share/arduino/hardware/arduino/cores/arduino/WString.h:
+
+/usr/share/arduino/hardware/arduino/cores/arduino/HardwareSerial.h:
+
+/usr/share/arduino/hardware/arduino/cores/arduino/Stream.h:
+
+/usr/share/arduino/hardware/arduino/cores/arduino/Print.h:
+
+/usr/share/arduino/hardware/arduino/cores/arduino/Printable.h:
+
+/usr/share/arduino/hardware/arduino/cores/arduino/new.h:
+
+/usr/share/arduino/hardware/arduino/variants/mega/pins_arduino.h:
+
+PinChangeInt.h:
+
+/usr/share/arduino/hardware/arduino/cores/arduino/Arduino.h:
+
+/usr/share/arduino/hardware/arduino/cores/arduino/wiring_private.h:
+
+/usr/share/arduino/hardware/arduino/cores/arduino/Arduino.h:
+
+/usr/share/arduino/libraries/Servo/Servo.h:
+
+Radio.h:
+
+/usr/share/arduino/libraries/Wire/Wire.h:
+
+/usr/share/arduino/hardware/arduino/cores/arduino/Stream.h:
+
+IMU_lib/I2Cdev/I2Cdev.h:
+
+MPU9150Lib.h:
+
+IMU_lib/MPU9150Lib/MPUQuaternion.h:
+
+IMU_lib/MPU9150Lib/MPUVector3.h:
+
+IMU_lib/CalLib/CalLib.h:
+
+IMU_lib/inv_mpu/inv_mpu.h:
+
+IMU_lib/inv_mpu_dmp_motion_driver/inv_mpu_dmp_motion_driver.h:
+
+IMU_lib/dmpKey/dmpKey.h:
+
+IMU_lib/dmpmap/dmpmap.h:
+
+/usr/share/arduino/libraries/EEPROM/EEPROM.h:
+
+Utils.h:
+
+Motors.h:
+
+FlightControl.h:
+
+Motors.h:
