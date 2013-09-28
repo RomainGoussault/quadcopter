@@ -2,21 +2,20 @@ Code in progress to control a quadcopter on Arduino MEGA 2560.
 
 
 
-TODO:
 
 
 
-LED
-1/ gérer yaw
-control
+
+
+TO  DO:
+
+control 
+serial + control
+
 
 make monitor
-
-
-
-6/autozero
-
-
+autozero
+LED
 
 
 
@@ -32,8 +31,8 @@ make monitor
 
 
 
-git add -u
-git commit -m "bablal"
+//Easy push
+git commit -a -m "bablal"
 git push origin master
 
 

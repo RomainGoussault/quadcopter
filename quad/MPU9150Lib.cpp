@@ -460,10 +460,10 @@ void MPU9150Lib::printProcessedAngles(float *vec)
 
 bool MPU9150Lib::checkValues()
 {
-	float x, y, z;
+	float x, y;
 	x = -(m_fusedEulerPose[VEC3_X] * RAD_TO_DEGREE  - ROLL_OFFSET);
 	y = m_fusedEulerPose[VEC3_Y] * RAD_TO_DEGREE - PITCH_OFFSET;
-	z = m_fusedEulerPose[VEC3_Z] * RAD_TO_DEGREE  - YAW_OFFSET;
+	//z = m_fusedEulerPose[VEC3_Z] * RAD_TO_DEGREE  - YAW_OFFSET;
 	
 	//Serial.print(" abs(x) ");
 	//Serial.print(abs(x) );
@@ -483,124 +483,21 @@ bool MPU9150Lib::checkValues()
 
 void MPU9150Lib::processAngles(float angles[])
 {
-	//oldRoll = currentRoll_1;
-	//oldPitch = currentPitch_1;
-	//oldYaw=currentYawFilter;
-	float currentRoll_1;
-float currentPitch_1;
-float currentYaw_1;
+	float RollIMU;
+	float PitchIMU;
 
-
-float oldYaw;
-
-float currentRoll;
-float currentPitch;
-float currentYaw;
-	
-
-	currentRoll_1=-(m_fusedEulerPose[VEC3_X] * RAD_TO_DEGREE  - ROLL_OFFSET);
-	currentPitch_1= m_fusedEulerPose[VEC3_Y] * RAD_TO_DEGREE - PITCH_OFFSET;
-	currentYaw= m_fusedEulerPose[VEC3_Z] * RAD_TO_DEGREE  - YAW_OFFSET;
-	
-	
-	//45deg rotation
-	currentRoll = rac22* currentRoll_1 + rac22*currentPitch_1;
-	currentPitch = -rac22* currentRoll_1 + rac22*currentPitch_1;
-	
-	///*		//Exponential moving average yaw*/
+	RollIMU =-(m_fusedEulerPose[VEC3_X] * RAD_TO_DEGREE  - ROLL_OFFSET);
+	PitchIMU = m_fusedEulerPose[VEC3_Y] * RAD_TO_DEGREE - PITCH_OFFSET;
+ 	
+	//*		//Exponential moving average yaw*/
 	//currentYawFilter = alpha * currentYaw + (1-alpha) * oldYaw;
 	
-	angles[0]=currentRoll;
-	angles[1]=currentPitch;
-	angles[2]=currentYaw;
+	//45deg rotation for roll and pitch
+	angles[0]=rac22* RollIMU + rac22*PitchIMU;
+	angles[1]= -rac22* RollIMU + rac22*PitchIMU;
+	angles[2]=m_fusedEulerPose[VEC3_Z] * RAD_TO_DEGREE  -  YAW_OFFSET;
 }
 
-
-
-void MPU9150Lib::waitToBeStable()
-{
-
-	Serial.println("ENTREE");
-	int i,j;
-	int maxLenght;
-	maxLenght=5;
-
-	float vecs[maxLenght][3];
-	float mean;
-	float ecart_type;
-	float diff[maxLenght];
-
-
-
-
-
-	for (i=0; i<maxLenght; i++){
-		for (j=0; j<=2; j++){
-			vecs[i][j] = 0;
-
-		}
-	}
-
-	vecs[0][1]=m_fusedEulerPose[1];
-	vecs[0][2]=m_fusedEulerPose[2];
-	vecs[0][3]=m_fusedEulerPose[3];
-
-
-	ecart_type=10;
-
-	while (ecart_type>0.0001)
-	{
-		mean=0;
-		ecart_type=10;
-
-
-
-		if (read())
-		{  
-	for (i=0; i<maxLenght-1; i++)
-			{
-	for (j=0; j<=2; j++)
-				{
-				  vecs[i+1][j] = vecs[i][j] ;
-				}
-			}
-
-
-			for (j=0; j<=2; j++)
-			{
-				vecs[0][j] = m_fusedEulerPose[j] ;
-			}
-
-			printAngles(m_fusedEulerPose);                 // print the output of the data fusion
-			Serial.println("NOT READY IN LOOP");
-		}
-
-
-
-
-		//calcul de la moyenne
-		for (i=0 ; i<maxLenght ; i++) mean += vecs[i][1];
-		mean /= maxLenght;
-
-
-		//mean=mean(maxLenght, vecs[][1])
-
-		//calcul de l'écart type
-
-		for (i=0 ; i<maxLenght ; i++)
-		{
-			diff[i]=(vecs[i][1]-mean)*(vecs[i][1]-mean);
-			ecart_type += diff[i];
-		}
-		ecart_type = sqrt(ecart_type / maxLenght);
-
-	}
-
-
-
-	Serial.println("sortie");
-
-}
 
 
 

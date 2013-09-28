@@ -68,9 +68,10 @@
 
 #define  ROLL_OFFSET -0.64
 #define  PITCH_OFFSET 0.07
-#define  YAW_OFFSET 0.00
+#define  YAW_OFFSET 9.70
 
 #define  rac22 0.707
+
 
 class MPU9150Lib
 {
@@ -132,16 +133,11 @@ public:
   void printProcessedAngles(float *vec);
 
   
-  
-  
-  //no longer used fonction
-  void waitToBeStable();
-  
   //Check if the values are in a acceptable range
   bool checkValues();
   
   //Process the angles
-  void processAngles(float angles[]);
+  void processAngles(float angles[] );
   
   
   //  these variables are the values from the MPU

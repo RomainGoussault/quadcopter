@@ -1,6 +1,9 @@
 /*
    Radio.cpp - Library 
    based on the code posted on rcarduino.blogspot.com
+   Basically reads a 6ch Turnigy Radio.
+   Deadzone has been implemented
+   * 
  */
 
 

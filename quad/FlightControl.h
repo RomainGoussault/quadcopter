@@ -40,12 +40,11 @@ class FlightControl
 
     FlightControl();
     void init();
-    void control(float, float, float, float, float, float, float, Motors, bool);
+	void control(float targetAngles[], float angles[], float throttle, Motors motors, bool motors_on);
 
-//errors
-float e_roll;
-float e_pitch;
-float e_yaw;
+
+
+
 
     
   private:
@@ -55,7 +54,8 @@ float ed_roll;
 float ed_pitch;
 float ed_yaw;
 
-
+//errors
+float anglesErrors[3];
 
 //PID coefficients
 float kp_roll;

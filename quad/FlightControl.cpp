@@ -29,37 +29,30 @@ void FlightControl::init() {
 
 
 
-void FlightControl::control(float targetRoll, float targetPitch, float targetYaw, float currentRoll, float currentPitch, float currentYaw, float throttle, Motors motors, bool motors_on) {
-	float e_roll_old;
-	float e_pitch_old;
-	float e_yaw_old;
+void FlightControl::control(float targetAngles[], float angles[], float throttle, Motors motors, bool motors_on) {
+
 	float multiplier=1*0.5;
 
 	kp_roll= multiplier * 1;
 	kp_pitch=multiplier *1;
 	kp_yaw=0.1;
-
-	kd_roll=multiplier *1;
-	kd_pitch=multiplier *1;
-	kd_yaw=0.1;
+ 
+	//kd_roll=multiplier *1;
+	//kd_pitch=multiplier *1;
+	//kd_yaw=0.1;
 	
+	//ki_roll=0;
+	//ki_pitch=0;
+	//ki_yaw=0.1;
+	
+	for (int i = 0; i < 3 ; i++)
+	{
+		anglesErrors[i] = targetAngles[i] - angles[i];
+	}
 	
 
-	ki_roll=0;
-	ki_pitch=0;
-	ki_yaw=0.1;
 
-	e_roll_old = e_roll;
-	e_pitch_old = e_pitch;
-	e_yaw_old = e_yaw;
 
-	e_roll = targetRoll - currentRoll;
-	e_pitch = targetPitch - currentPitch;
-	e_yaw = targetYaw - currentYaw;
-
-	ed_roll = e_roll - e_roll_old;
-	ed_pitch = e_pitch - e_pitch_old;
-	ed_yaw = e_yaw - e_yaw_old;
 
 	//if (motors_on) {
 		//Serial.println("MOTORS ON");
@@ -73,9 +66,9 @@ void FlightControl::control(float targetRoll, float targetPitch, float targetYaw
 	float w1, w2, w3, w4;
 
 
-	U2 = (kp_roll * e_roll + kd_roll *ed_roll);
-	U3 = -(kp_pitch * e_pitch + kd_pitch *ed_pitch);
-	U4 =2*0*(kp_yaw * e_yaw + kd_yaw *ed_yaw);
+	U2 = (kp_roll * anglesErrors[0] );
+	U3 = -(kp_pitch * anglesErrors[1] );
+	U4 =2*0*(kp_yaw * anglesErrors[2])	 ;
 
 	U1 = map_f(throttle, MAP_RADIO_LOW , MAP_RADIO_HIGH, -2, 2*100);
 
