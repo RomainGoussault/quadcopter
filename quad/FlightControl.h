@@ -22,11 +22,6 @@
 #include <Motors.h>
 
 
-
-
-#define b 0.00004
-#define d (float) b/50.0  
-
 //motor1: first white, motor2 second white
 //4 and 2 counter clockwise
 
@@ -40,7 +35,7 @@ class FlightControl
 
     FlightControl();
     void init();
-	void control(float targetAngles[], float angles[], float throttle, Motors motors, bool motors_on);
+	void control(float targetAngles[], float angles[], float throttle, Motors motors, bool motorsReady);
 
 
 

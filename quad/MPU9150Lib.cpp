@@ -245,6 +245,11 @@ boolean MPU9150Lib::init(int mpuRate, int magMix, int magRate, int lpf)
 
 boolean MPU9150Lib::read()
 {
+	
+
+	
+	
+	
 	short intStatus;
 	int result;
 	short sensors;
@@ -335,8 +340,15 @@ boolean MPU9150Lib::read()
 		m_calAccel[VEC3_Y] = m_rawAccel[VEC3_Y];
 		m_calAccel[VEC3_Z] = m_rawAccel[VEC3_Z];
 	}
+
+	
+		
 	dataFusion();
+	
+
 	return true;
+	
+		
 }
 
 void MPU9150Lib::dataFusion()
@@ -464,11 +476,7 @@ bool MPU9150Lib::checkValues()
 	x = -(m_fusedEulerPose[VEC3_X] * RAD_TO_DEGREE  - ROLL_OFFSET);
 	y = m_fusedEulerPose[VEC3_Y] * RAD_TO_DEGREE - PITCH_OFFSET;
 	//z = m_fusedEulerPose[VEC3_Z] * RAD_TO_DEGREE  - YAW_OFFSET;
-	
-	//Serial.print(" abs(x) ");
-	//Serial.print(abs(x) );
-		//Serial.print("      ROLL_MAX_IMU ");
-	//Serial.print(ROLL_MAX_IMU );
+
 	
 	
    if ( abs(x) < ROLL_MAX_IMU && abs(y) < PITCH_MAX_IMU  )

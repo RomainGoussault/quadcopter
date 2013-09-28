@@ -29,6 +29,7 @@
 volatile uint8_t bUpdateFlagsShared; // true if new radio signal
 int RadioChannels[7];
 bool radio_on;
+bool ch5_old=true;
 
 
 //IMU
@@ -41,9 +42,9 @@ float angles[3];
 
 //Motors
 Motors motors;
-bool motors_on;
-bool motors_on_old;
-
+bool motorsReady = false;
+bool motorsReadyOld = false;
+bool motorsOn = false;
 
 //FlightControl
 FlightControl flightControl;
@@ -66,8 +67,11 @@ bool green_led;
 bool yellow_led;
 bool red_led;
 
-
+//Serial
 #define  SERIAL_PORT_SPEED  115200
+
+
+
 
 
 void setup()
@@ -98,16 +102,14 @@ void setup()
 	Wire.begin();
 	MPU.selectDevice(DEVICE_TO_USE);
 	MPU.init(MPU_UPDATE_RATE, MPU_MAG_MIX_GYRO_ONLY	, MAG_UPDATE_RATE, MPU_LPF_RATE);// start the MPU
-
+//MPU.useMagCal(false);
 
 	//Motors
 	motors.init();
 
 
 	//End of the setup phase
-	Serial.print("Setup done");
-
-	
+	Serial.print("Setup done");	
 }
 
 
@@ -148,19 +150,22 @@ void loop()
 	//We need to wait 15 sec for the gyro autocalibration phase
 	if (calibrating)		
 	{
-		Serial.print( "  Calibrating... ");
-		if (millis() > 17000)
+		Serial.println( "  Calibrating... ");
+			if (millis() > 17000) //17000
 		{
 			calibrating = false;
 		}		
 	}
 	
 	
-	
+		
+		//unsigned long startF = micros();
+		//unsigned long endF = micros();
+		//unsigned long deltaF = endF - startF;
+		//Serial.print("deltaF  ");
+		//Serial.println(deltaF);
 	
 		
-
-	
 	
 	
 	//Serial.println( calibrating);
@@ -168,67 +173,74 @@ void loop()
 	while (!MPU.read())  //we wait for the latest data to come
 	{	delay(1);	}   
 		
+		
 	if (MPU.checkValues()) //continue only the data are OK
 	{
 		MPU.processAngles(angles);
 	//	MPU.printAngles(MPU.m_fusedEulerPose);                 // print the output of the data fusion
-		Serial.println("");
-	//	MPU.printProcessedAngles(angles);
+	//	Serial.println("");
+		MPU.printProcessedAngles(angles);
 	}
 	else
 	{
 		IMU_problem = true;
-		Serial.println( "    IMU PB    ");
+		Serial.print( "    IMU PBPBP   ");
+
 	}
 	
-	
-	
+
 	//=======================================================================================
 	//                                    MOTORS
 	//=======================================================================================
-	motors_on = RadioChannels[5] && radio_on && !IMU_problem && !calibrating;
-	
-	//On first start we have to make sure the thottle is down
-	if (motors_on && !motors_on_old)
+	motorsReady = radio_on && !IMU_problem && !calibrating; 
+
+	if (ch5_old==false && RadioChannels[5]==true && RadioChannels[1]==0)
 	{
-		Serial.print("Throttle has to be down to set the motors on ");
-		if (RadioChannels[1]==0)
+		motorsOn = true;
+	}
+	if (RadioChannels[5]==false || (motorsReadyOld==true  &&  motorsReady==false))
+	{
+		motorsOn = false;
+	}
+		
+	motors.setMotorsOn(motorsOn);
+	ch5_old=RadioChannels[5];
+	motorsReadyOld = motorsReady;
+
+	//Print the status of the motor
+	if (motorsReady)
+	{
+		if (motorsOn)
 		{
-			motors_on = true;
+			Serial.print("  Motors ON   ");
 		}
 		else
 		{
-			motors_on = false;
-		}		
+			Serial.print(" Motors Ready  ");
+		}
 	}
-	motors_on_old = motors_on;
-	
-	
-	Serial.print("ch1 ");
-	Serial.println(RadioChannels[1]);
-	
-	Serial.print("motors_on  ");
-	Serial.println(motors_on);
-
-	if(motors_on)
+	else
 	{
+		Serial.print("  Motors OFF  ");
+	}
+	
+
+	if(motorsReady)
+	{	
 		targetAngles[0] =  map_f(RadioChannels[2], MAP_RADIO_LOW, MAP_RADIO_HIGH, -ROLL_MAX_RADIO, ROLL_MAX_RADIO);
 		targetAngles[1] =  map_f(RadioChannels[4], MAP_RADIO_LOW, MAP_RADIO_HIGH, -PITCH_MAX_RADIO, PITCH_MAX_RADIO);
 		targetAngles[2] =  map_f(RadioChannels[3], MAP_RADIO_LOW, MAP_RADIO_HIGH, -YAW_MAX_RADIO, YAW_MAX_RADIO);
 		throttle = RadioChannels[1];
 
-		flightControl.control(targetAngles, angles, throttle, motors, motors_on);
-
+		flightControl.control(targetAngles, angles, throttle, motors, motorsReady);
 	}
 	else
 	{
 		motors.allStop();
 		//Serial.println("MOTORS STOPPED ");
 	}
+	Serial.println("");
 }
-
-
-
 
 
 

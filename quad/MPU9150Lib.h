@@ -38,7 +38,7 @@
 //    1 = use the device at ox69
 #define  DEVICE_TO_USE    1
 
-#define MPU_UPDATE_RATE  50
+#define MPU_UPDATE_RATE  60
 
 //  MAG_UPDATE_RATE should be less than or equal to the MPU_UPDATE_RATE
 #define MAG_UPDATE_RATE  (10)
@@ -52,12 +52,12 @@
 #define  MPU_MAG_MIX_GYRO_AND_SOME_MAG  50                  // mainly gyros with a bit of mag correction 
 
 //  MPU_LPF_RATE is the low pas filter rate and can be between 5 and 188Hz
-#define MPU_LPF_RATE   40
+#define MPU_LPF_RATE   0
 
 
 
 //  Define this symbol to get debug info
-#define MPULIB_DEBUG
+#define MPULIB_DEBUG 1
 
 //  This symbol defines the scaled range for mag and accel values
 #define SENSOR_RANGE   4096

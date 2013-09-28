@@ -29,13 +29,12 @@ void FlightControl::init() {
 
 
 
-void FlightControl::control(float targetAngles[], float angles[], float throttle, Motors motors, bool motors_on) {
+void FlightControl::control(float targetAngles[], float angles[], float throttle, Motors motors, bool motorsReady) {
 
-	float multiplier=1*0.5;
 
-	kp_roll= multiplier * 1;
-	kp_pitch=multiplier *1;
-	kp_yaw=0.1;
+	kp_roll= 0.1;
+	//kp_pitch= *1;
+	//kp_yaw=0.1;
  
 	//kd_roll=multiplier *1;
 	//kd_pitch=multiplier *1;
@@ -52,31 +51,24 @@ void FlightControl::control(float targetAngles[], float angles[], float throttle
 	
 
 
-
-
-	//if (motors_on) {
-		//Serial.println("MOTORS ON");
-
-	//} else {
-		//Serial.println("MOTOS OFF ");
-	//}
-
+	//Roll is control by M2 and M4
+	//Ptich is control by M1 and M3
 
 	float U1, U2, U3, U4;
 	float w1, w2, w3, w4;
 
 
 	U2 = (kp_roll * anglesErrors[0] );
-	U3 = -(kp_pitch * anglesErrors[1] );
-	U4 =2*0*(kp_yaw * anglesErrors[2])	 ;
+	U3 = -0*(kp_pitch * anglesErrors[1] );
+	U4 =0*(kp_yaw * anglesErrors[2])	 ;
 
-	U1 = map_f(throttle, MAP_RADIO_LOW , MAP_RADIO_HIGH, -2, 2*100);
+	U1 = map_f(throttle, MAP_RADIO_LOW , MAP_RADIO_HIGH, 0, 2*100);
 
 
-	w1 = 0.5*U3+0.25*U1-0.25*U4;
+	w1 =0*(0.5*U3+0.25*U1-0.25*U4);
 	w4 = - 0.5*U2+0.25*U4+0.25*U1;
-	w3 = 0.25*U1- 0.5*U3-0.25*U4;
-	w2= 0.25*U4+ 0.5*U2+0.25*U1;
+	w3 = 0*(0.25*U1- 0.5*U3-0.25*U4);
+	w2=    0.25*U4+ 0.5*U2+0.25*U1;
 	//swith 2 et 4
 
 
@@ -111,23 +103,23 @@ void FlightControl::control(float targetAngles[], float angles[], float throttle
 
 
 
-	//Serial.print("w1: ");
-	//Serial.println(w1);
+	Serial.print(" w1: ");
+	Serial.print(w1);
 
-	//Serial.print("w2: ");
-	//Serial.println(w2);
+	Serial.print("| w2: ");
+	Serial.print(w2);
 
-	//Serial.print("w3: ");
-	//Serial.println(w3);
+	Serial.print("| w3: ");
+	Serial.print(w3);
 
-	//Serial.print("w4: ");
-	//Serial.println(w4);
+	Serial.print("| w4: ");
+	Serial.print(w4);
+	Serial.print("| ");
 
-
-	motors.setMotorSpeed(1, motors_on* w1);
-	motors.setMotorSpeed(2,  motors_on* w2);
-	motors.setMotorSpeed(3,  motors_on* w3);
-	motors.setMotorSpeed(4,  motors_on* w4);
+	motors.setMotorSpeed(1, w1);
+	motors.setMotorSpeed(2, w2);
+	motors.setMotorSpeed(3, w3);
+	motors.setMotorSpeed(4, w4);
 
 
 }

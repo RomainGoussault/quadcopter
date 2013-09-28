@@ -29,6 +29,7 @@ Motors::Motors(){
   motors[1] = MOTOR_2_PIN;
   motors[2] = MOTOR_3_PIN;
   motors[3] = MOTOR_4_PIN;
+  motorsOn = false;
 }
 
 void Motors::init(){
@@ -39,6 +40,10 @@ void Motors::allStop(){
   setAllSpeed(0);
 }
 
+void Motors::setMotorsOn(bool b){
+	motorsOn = b;
+}
+
 
 
 void Motors::setMotorSpeed(byte motor, float speed){
@@ -47,10 +52,10 @@ void Motors::setMotorSpeed(byte motor, float speed){
   speed = map_f(speed, MIN_MOTOR_SPEED_CONTROL, MAX_MOTOR_SPEED_CONTROL, MIN_MOTOR_SPEED_PWM, MAX_MOTOR_SPEED_PWM);
   speed = constrain(speed, MIN_MOTOR_SPEED_PWM, MAX_MOTOR_SPEED_PWM);
   speed_int = (int) (speed) ;
-  analogWrite(motors[motor-1], speed_int);
+  analogWrite(motors[motor-1], speed_int*motorsOn);
 
-//Serial.print(speed_int);
-//Serial.print("   ");
+Serial.print(speed_int);
+Serial.print("   ");
 
 //Serial.println(speed_int );
   motor_speeds[motor-1] = speed_int;

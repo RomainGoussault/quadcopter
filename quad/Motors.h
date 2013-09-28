@@ -32,7 +32,7 @@
 #define MIN_MOTOR_SPEED_PWM 50
 #define MAX_MOTOR_SPEED_PWM 250
 #define MIN_MOTOR_SPEED_CONTROL 0
-#define MAX_MOTOR_SPEED_CONTROL 8
+#define MAX_MOTOR_SPEED_CONTROL 10
 
 //motor1: first white, motor2 second white
 //4 and 2 counter clockwise
@@ -51,6 +51,7 @@ class Motors
     void setMotorSpeed(byte, float);
     int getMotorSpeed(byte);
     void setAllSpeed(float);
+    void setMotorsOn(bool);
     
 
 
@@ -59,6 +60,7 @@ class Motors
   private:
     int motors[MOTOR_COUNT];
     float motor_speeds[MOTOR_COUNT];
+    bool motorsOn;
 
 
     
