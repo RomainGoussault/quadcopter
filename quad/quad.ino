@@ -59,9 +59,10 @@ float freq = 0;
 
 
 //Warning LED
-#define GREEN_LED_PIN 0
-#define YELLOW_LED_PIN 0
-#define RED_LED_PIN  0
+#define GREEN_LED_PIN 35
+#define YELLOW_LED_PIN 31
+#define RED_LED_PIN  33
+
 
 bool green_led;
 bool yellow_led;
@@ -106,7 +107,11 @@ void setup()
 
 	//Motors
 	motors.init();
-
+	
+	//Warning LED
+	  pinMode(GREEN_LED_PIN, OUTPUT); 
+	  pinMode(RED_LED_PIN, OUTPUT);   
+  	  pinMode(YELLOW_LED_PIN, OUTPUT); 
 
 	//End of the setup phase
 	Serial.print("Setup done");	
@@ -185,6 +190,7 @@ void loop()
 	{
 		IMU_problem = true;
 		Serial.print( "    IMU PBPBP   ");
+		MPU.printAngles(MPU.m_fusedEulerPose);
 
 	}
 	
@@ -212,16 +218,16 @@ void loop()
 	{
 		if (motorsOn)
 		{
-			Serial.print("  Motors ON   ");
+			Serial.print("    Motors ON      ");
 		}
 		else
 		{
-			Serial.print(" Motors Ready  ");
+			Serial.print("    Motors Ready    ");
 		}
 	}
 	else
 	{
-		Serial.print("  Motors OFF  ");
+		Serial.print("     Motors OFF    ");
 	}
 	
 
@@ -239,6 +245,12 @@ void loop()
 		motors.allStop();
 		//Serial.println("MOTORS STOPPED ");
 	}
+	
+	digitalWrite(GREEN_LED_PIN, motorsOn); 
+	digitalWrite(YELLOW_LED_PIN, !motorsOn && motorsReady); 
+	digitalWrite(RED_LED_PIN, !motorsReady); 
+
+
 	Serial.println("");
 }
 

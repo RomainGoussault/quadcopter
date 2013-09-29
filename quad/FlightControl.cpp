@@ -22,35 +22,61 @@
 
 
 FlightControl::FlightControl() {
+	kp_roll= 0.0001;
 }
 
 void FlightControl::init() {
+	
 }
 
 
 
 void FlightControl::control(float targetAngles[], float angles[], float throttle, Motors motors, bool motorsReady) {
-
-
-	kp_roll= 0.1;
+	
+	int incomingByte = 0;
+	float targetRate[3];
+	
+	float multiplier = 1.05;
 	//kp_pitch= *1;
 	//kp_yaw=0.1;
  
 	//kd_roll=multiplier *1;
 	//kd_pitch=multiplier *1;
-	//kd_yaw=0.1;
+	//kd_yaw=0.1; 
 	
 	//ki_roll=0;
 	//ki_pitch=0;
 	//ki_yaw=0.1;
 	
-	for (int i = 0; i < 3 ; i++)
-	{
-		anglesErrors[i] = targetAngles[i] - angles[i];
+	
+	
+	//Setting gain of the PID
+	if (Serial.available() > 0) 
+	{ 
+		incomingByte = Serial.read();
+
+		if (incomingByte == 'P' )
+		{
+			Serial.print("Nouvelle valeur de kp_roll ");
+			kp_roll *= multiplier;
+		}
+		if (incomingByte == 'p' )
+		{
+			Serial.print("Nouvelle valeur de kp_roll ");
+			kp_roll /= multiplier;
+		}
 	}
 	
 
+	
+	for (int i = 0; i < 3 ; i++)
+	{
+		anglesErrors[i] = targetAngles[i] - angles[i];
+		anglesOld[i] = angles[i];
+	}
+	
 
+	
 	//Roll is control by M2 and M4
 	//Ptich is control by M1 and M3
 
@@ -114,14 +140,15 @@ void FlightControl::control(float targetAngles[], float angles[], float throttle
 
 	Serial.print("| w4: ");
 	Serial.print(w4);
-	Serial.print("| ");
+	Serial.print("|    ");
 
 	motors.setMotorSpeed(1, w1);
 	motors.setMotorSpeed(2, w2);
 	motors.setMotorSpeed(3, w3);
 	motors.setMotorSpeed(4, w4);
 
-
+	Serial.print("   kp roll ");
+	Serial.print(kp_roll,6);	
 }
 
 

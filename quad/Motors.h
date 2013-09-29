@@ -32,9 +32,12 @@
 #define MIN_MOTOR_SPEED_PWM 50
 #define MAX_MOTOR_SPEED_PWM 250
 #define MIN_MOTOR_SPEED_CONTROL 0
-#define MAX_MOTOR_SPEED_CONTROL 10
+#define MAX_MOTOR_SPEED_CONTROL 15
+
+
 
 //motor1: first white, motor2 second white
+//1 and 3 clockwise (R on my props)
 //4 and 2 counter clockwise
 
 
