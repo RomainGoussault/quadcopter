@@ -52,9 +52,9 @@ void Motors::setMotorSpeed(byte motor, float speed){
   speed = map_f(speed, MIN_MOTOR_SPEED_CONTROL, MAX_MOTOR_SPEED_CONTROL, MIN_MOTOR_SPEED_PWM, MAX_MOTOR_SPEED_PWM);
   speed = constrain(speed, MIN_MOTOR_SPEED_PWM, MAX_MOTOR_SPEED_PWM);
   speed_int = (int) (speed) ;
-  analogWrite(motors[motor-1], speed_int*motorsOn);
+  analogWrite(motors[motor-1], speed*motorsOn);
 
-Serial.print(speed_int);
+Serial.print(speed);
 Serial.print("   ");
 
 //Serial.println(speed_int );

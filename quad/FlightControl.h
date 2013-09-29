@@ -51,6 +51,7 @@ float ed_yaw;
 
 //errors
 float anglesErrors[3];
+float anglesErrorsD[3];;
 
 //PID coefficients
 float kp_roll;
@@ -66,7 +67,7 @@ float ki_pitch;
 float ki_yaw;
 
 
-float anglesOld[3];
+float anglesErrorsOld[3];
 
     
 

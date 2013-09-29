@@ -22,7 +22,8 @@
 
 
 FlightControl::FlightControl() {
-	kp_roll= 0.0001;
+	kp_roll= 0.61/100;
+	kd_roll = 0.095/100;
 }
 
 void FlightControl::init() {
@@ -59,11 +60,13 @@ void FlightControl::control(float targetAngles[], float angles[], float throttle
 		{
 			Serial.print("Nouvelle valeur de kp_roll ");
 			kp_roll *= multiplier;
+			kd_roll *= multiplier;
 		}
 		if (incomingByte == 'p' )
 		{
 			Serial.print("Nouvelle valeur de kp_roll ");
 			kp_roll /= multiplier;
+			kd_roll /= multiplier;
 		}
 	}
 	
@@ -72,7 +75,8 @@ void FlightControl::control(float targetAngles[], float angles[], float throttle
 	for (int i = 0; i < 3 ; i++)
 	{
 		anglesErrors[i] = targetAngles[i] - angles[i];
-		anglesOld[i] = angles[i];
+		anglesErrorsD[i] = ( anglesErrors[i] - anglesErrorsOld[i]) / 0.02;
+		anglesErrorsOld[i] = anglesErrors[i];
 	}
 	
 
@@ -84,7 +88,7 @@ void FlightControl::control(float targetAngles[], float angles[], float throttle
 	float w1, w2, w3, w4;
 
 
-	U2 = (kp_roll * anglesErrors[0] );
+	U2 = (kp_roll * anglesErrors[0] + kd_roll * anglesErrorsD[0]);
 	U3 = -0*(kp_pitch * anglesErrors[1] );
 	U4 =0*(kp_yaw * anglesErrors[2])	 ;
 
@@ -149,6 +153,9 @@ void FlightControl::control(float targetAngles[], float angles[], float throttle
 
 	Serial.print("   kp roll ");
 	Serial.print(kp_roll,6);	
+	
+		Serial.print("   kd roll ");
+	Serial.print(kd_roll,6);
 }
 
 
