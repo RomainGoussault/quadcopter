@@ -8,18 +8,7 @@ Code in progress to control a quadcopter on Arduino MEGA 2560.
 
 
 TO  DO:
-
-git
-
-pid
-P PID
-
-control 
-serial + control
-
-
-make monitor
-autozero
+speed control
 
 
 
