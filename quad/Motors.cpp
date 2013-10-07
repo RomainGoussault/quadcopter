@@ -24,6 +24,8 @@
 
 
 Motors::Motors(){  
+		Serial.println("constructeur  ");
+
   // Setup motors
   motors[0] = MOTOR_1_PIN;
   motors[1] = MOTOR_2_PIN;
@@ -47,18 +49,16 @@ void Motors::setMotorsOn(bool b){
 
 
 void Motors::setMotorSpeed(byte motor, float speed){
-  int speed_int;
 
-  speed = map_f(speed, MIN_MOTOR_SPEED_CONTROL, MAX_MOTOR_SPEED_CONTROL, MIN_MOTOR_SPEED_PWM, MAX_MOTOR_SPEED_PWM);
-  speed = constrain(speed, MIN_MOTOR_SPEED_PWM, MAX_MOTOR_SPEED_PWM);
-  speed_int = (int) (speed) ;
-  analogWrite(motors[motor-1], speed*motorsOn);
+	//Serial.print(speed);
+	//Serial.print("   ");
+	
+	speed = map_f(speed, MIN_MOTOR_SPEED_CONTROL, MAX_MOTOR_SPEED_CONTROL, MIN_MOTOR_SPEED_PWM, MAX_MOTOR_SPEED_PWM);
+	speed = constrain(speed, MIN_MOTOR_SPEED_PWM, MAX_MOTOR_SPEED_PWM);
 
-Serial.print(speed);
-Serial.print("   ");
+	analogWrite(motors[motor-1], speed*motorsOn);
 
-//Serial.println(speed_int );
-  motor_speeds[motor-1] = speed_int;
+	motor_speeds[motor-1] = speed;
 }
 
 

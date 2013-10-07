@@ -16,57 +16,57 @@
   You should have received a copy of the GNU General Public License 
   along with this program. If not, see <http://www.gnu.org/licenses/>. 
 */
-#ifndef Motors_h
-#define Motors_h
+#ifndef IMU_h
+#define IMU_h
 
 #include <Arduino.h>
 #include <Utils.h>
-
-#define MOTOR_COUNT 4
-
-#define MOTOR_1_PIN 8
-#define MOTOR_2_PIN 9
-#define MOTOR_3_PIN 10
-#define MOTOR_4_PIN 11
-
-#define MIN_MOTOR_SPEED_PWM 50
-#define MAX_MOTOR_SPEED_PWM 250
-#define MIN_MOTOR_SPEED_CONTROL 0
-#define MAX_MOTOR_SPEED_CONTROL 100
+#include <Wire.h>
+#include "I2Cdev.h"
+#include "MPU6050.h"
+#include "Kalman.h"
 
 
+#define  ROLL_MAX_IMU  30
+#define  PITCH_MAX_IMU 30
 
-//motor1: first white, motor2 second white
-//1 and 3 clockwise (R on my props)
-//4 and 2 counter clockwise
+#define  ROLL_OFFSET -0.64
+#define  PITCH_OFFSET 0.07
+#define  YAW_OFFSET 9.70
 
+//#define  rac22 0.707
 
-
-
-class Motors
+class IMU
 {
 
   public:
 
-    Motors();
-    void init();
-    void allStop();
-    void setMotorSpeed(byte, float);
-    int getMotorSpeed(byte);
-    void setAllSpeed(float);
-    void setMotorsOn(bool);
+  IMU();
+  
+  //initialize the IMU
+  void init();  
+ 
+  //Process the angles
+  bool processAngles(float angles[] );
     
 
 
 
     
   private:
-    int motors[MOTOR_COUNT];
-    float motor_speeds[MOTOR_COUNT];
-    bool motorsOn;
-
-
     
+	Kalman kalmanX; // Create the Kalman instances
+	Kalman kalmanY;
+
+	/* IMU Data */
+	int16_t accX, accY, accZ;
+	int16_t gyroX, gyroY, gyroZ;
+
+	double accXangle, accYangle; // Angle calculate using the accelerometer
+	double gyroXangle, gyroYangle; // Angle calculate using the gyro
+	double kalAngleX, kalAngleY; // Calculate the angle using a Kalman filter
+	MPU6050 accelgyro;
+	uint32_t timer;
 
 };
 

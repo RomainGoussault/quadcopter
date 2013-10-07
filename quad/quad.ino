@@ -5,13 +5,12 @@
 #include <Radio.h>
 #include <Wire.h>
 #include "I2Cdev.h"
-#include "MPU9150Lib.h"   
-#include "CalLib.h"
-#include <dmpKey.h>
-#include <dmpmap.h>
-#include <inv_mpu.h>
-#include <inv_mpu_dmp_motion_driver.h>
-#include <EEPROM.h>
+#include "MPU6050.h"
+#include "Kalman.h" 
+#include "IMU.h" 
+
+#include <stdlib.h>
+
 #include <Utils.h>		
 #include "Motors.h"
 #include "FlightControl.h"  
@@ -33,7 +32,7 @@ bool ch5_old=true;
 
 
 //IMU
-MPU9150Lib MPU;
+IMU imu;
 bool calibrating = true;
 bool IMU_problem = false;
 
@@ -42,6 +41,7 @@ float angles[3];
 
 //Motors
 Motors motors;
+
 bool motorsReady = false;
 bool motorsReadyOld = false;
 bool motorsOn = false;
@@ -55,7 +55,7 @@ float throttle;
 //Measuring time
 unsigned long loop_time = 0;
 unsigned long start_loop = 0;
-float freq = 0;
+float freq ;
 
 
 //Warning LED
@@ -71,16 +71,26 @@ bool red_led;
 //Serial
 #define  SERIAL_PORT_SPEED  115200
 
+char StrMotorOn[10] = "  M  ON  ";
+char StrMotorOff[10] = "  M OFF  ";
+char StrMotorReady[10] = "  M Rdy  ";
 
+	
+	char Strfreq[7];
+	char StrAngles[16];
+	char StrSpeed[29];	
+	char package[sizeof(Strfreq) + sizeof(StrSpeed) + sizeof(StrAngles) + sizeof(StrMotorOn) + 1];
 
+	
 
 
 void setup()
 {
+	 // join I2C bus (I2Cdev library doesn't do this automatically)
+    Wire.begin();
     Serial.begin( SERIAL_PORT_SPEED);
 	Serial.println("Start");
-	Serial.print("Loop rate: ");
-	Serial.println( MPU_UPDATE_RATE);
+
 	
 
 	//RADIO
@@ -98,23 +108,25 @@ void setup()
 
 
 	//IMU
-	Serial.print("Arduino9150 starting using device ");
-	Serial.println(DEVICE_TO_USE);
-	Wire.begin();
-	MPU.selectDevice(DEVICE_TO_USE);
-	MPU.init(MPU_UPDATE_RATE, MPU_MAG_MIX_GYRO_ONLY	, MAG_UPDATE_RATE, MPU_LPF_RATE);// start the MPU
-//MPU.useMagCal(false);
+	imu.init();
+ // timer = micros();
 
 	//Motors
+
 	motors.init();
 	
 	//Warning LED
 	  pinMode(GREEN_LED_PIN, OUTPUT); 
 	  pinMode(RED_LED_PIN, OUTPUT);   
   	  pinMode(YELLOW_LED_PIN, OUTPUT); 
+	
 
 	//End of the setup phase
-	Serial.print("Setup done");	
+	Serial.print("Setup done");
+	calibrating = false;
+	
+	//Printing
+
 }
 
 
@@ -129,10 +141,14 @@ void loop()
 	// Measure loop rate
 	loop_time =  micros() - start_loop;
 	start_loop = micros();
-	freq = 1000000/loop_time;
-	//Serial.print("freq: ");
-	//Serial.println(freq);
-	
+	freq =1000000/loop_time;
+    package[0] = '\0';
+		//unsigned long startF = micros();
+		//unsigned long endF = micros();
+		//unsigned long deltaF = endF - startF;
+		//Serial.print("deltaF  ");
+		//Serial.print(deltaF);
+
 	
 	//=======================================================================================
 	//                                   Radio
@@ -152,47 +168,16 @@ void loop()
 	//==============================================================================
 	//                                   IMU
 	//=======================================================================================
-	//We need to wait 15 sec for the gyro autocalibration phase
-	if (calibrating)		
-	{
-		Serial.println( "  Calibrating... ");
-			if (millis() > 17000) //17000
+	if (! (imu.processAngles(angles))  ) //continue only the data are OK
 		{
-			calibrating = false;
-		}		
-	}
+			IMU_problem = true;
+			Serial.print( "    IMU PBPBP   ");
+		}
 	
 	
-		
-		//unsigned long startF = micros();
-		//unsigned long endF = micros();
-		//unsigned long deltaF = endF - startF;
-		//Serial.print("deltaF  ");
-		//Serial.println(deltaF);
-	
-		
-	
-	
-	//Serial.println( calibrating);
-	
-	while (!MPU.read())  //we wait for the latest data to come
-	{	delay(1);	}   
-		
-		
-	if (MPU.checkValues()) //continue only the data are OK
-	{
-		MPU.processAngles(angles);
-	//	MPU.printAngles(MPU.m_fusedEulerPose);                 // print the output of the data fusion
-	//	Serial.println("");
-		MPU.printProcessedAngles(angles);
-	}
-	else
-	{
-		IMU_problem = true;
-		Serial.print( "    IMU PBPBP   ");
-		MPU.printAngles(MPU.m_fusedEulerPose);
 
-	}
+	
+	
 	
 
 	//=======================================================================================
@@ -212,33 +197,42 @@ void loop()
 	motors.setMotorsOn(motorsOn);
 	ch5_old=RadioChannels[5];
 	motorsReadyOld = motorsReady;
+	
 
+
+	
+	
 	//Print the status of the motor
 	if (motorsReady)
 	{
 		if (motorsOn)
 		{
-			Serial.print("    Motors ON      ");
+			strcat(package, StrMotorOn);
 		}
 		else
 		{
-			Serial.print("    Motors Ready    ");
+			strcat(package, StrMotorReady);
 		}
 	}
 	else
 	{
-		Serial.print("     Motors OFF    ");
+		strcat(package, StrMotorOff);
 	}
 	
 
 	if(motorsReady)
 	{	
-		targetAngles[0] =  map_f(RadioChannels[2], MAP_RADIO_LOW, MAP_RADIO_HIGH, -ROLL_MAX_RADIO, ROLL_MAX_RADIO);
-		targetAngles[1] =  map_f(RadioChannels[4], MAP_RADIO_LOW, MAP_RADIO_HIGH, -PITCH_MAX_RADIO, PITCH_MAX_RADIO);
+		targetAngles[0] =  map_f(RadioChannels[4], MAP_RADIO_LOW, MAP_RADIO_HIGH, -ROLL_MAX_RADIO, ROLL_MAX_RADIO);
+		targetAngles[1] =  map_f(RadioChannels[2], MAP_RADIO_LOW, MAP_RADIO_HIGH, -PITCH_MAX_RADIO, PITCH_MAX_RADIO);
 		targetAngles[2] =  map_f(RadioChannels[3], MAP_RADIO_LOW, MAP_RADIO_HIGH, -YAW_MAX_RADIO, YAW_MAX_RADIO);
 		throttle = RadioChannels[1];
+		
 
+
+	
 		flightControl.control(targetAngles, angles, throttle, motors, motorsReady);
+
+		
 	}
 	else
 	{
@@ -246,12 +240,46 @@ void loop()
 		//Serial.println("MOTORS STOPPED ");
 	}
 	
+	//LEDS
 	digitalWrite(GREEN_LED_PIN, motorsOn); 
 	digitalWrite(YELLOW_LED_PIN, !motorsOn && motorsReady); 
 	digitalWrite(RED_LED_PIN, !motorsReady); 
+	
+	
+	
+	
+	//printStatus();
 
 
-	Serial.println("");
+
+
+	dtostrf(freq,1,0,&Strfreq[2]);
+	dtostrf(angles[1],6,2,&StrAngles[7]);
+	dtostrf(angles[0],6,2,StrAngles);
+	dtostrf(motors.getMotorSpeed(1),6,2,StrSpeed);
+	dtostrf(motors.getMotorSpeed(2),6,2,&StrSpeed[7]);
+	dtostrf(motors.getMotorSpeed(3),6,2,&StrSpeed[14]);
+	dtostrf(motors.getMotorSpeed(4),6,2,&StrSpeed[21]);
+	Strfreq[0] = 'f';
+	Strfreq[1] = ' ';
+	Strfreq[5] = '\t';
+	Strfreq[6] = '\0';
+	StrAngles[6] = '\t';
+	StrAngles[13] = '\t';
+	StrAngles[14] = '\t';
+	StrAngles[15] = '\0';	
+	StrSpeed[6] = '\t';
+	StrSpeed[13] = '\t';
+	StrSpeed[20] = '\t';
+	StrSpeed[27] = '\t';	
+	StrSpeed[28] = '\0';
+	strcat(package, Strfreq);
+	strcat(package, StrAngles);
+	strcat(package, StrSpeed);
+	strcat(package, flightControl.StrControl);
+
+	Serial.println(package);
+
 }
 
 

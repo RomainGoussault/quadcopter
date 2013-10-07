@@ -8,7 +8,12 @@ Code in progress to control a quadcopter on Arduino MEGA 2560.
 
 
 TO  DO:
-gere set motor speed
+
+git
+
+pid
+P PID
+
 control 
 serial + control
 

@@ -20,12 +20,12 @@
 #include <Utils.h>
 #include <math.h>
 #include <Motors.h>
-
+#include <Arduino.h>
 
 //motor1: first white, motor2 second white
 //4 and 2 counter clockwise
 
-
+#define MAX_I_TERM 0.1
 
 
 class FlightControl
@@ -34,9 +34,8 @@ class FlightControl
   public:
 
     FlightControl();
-    void init();
-	void control(float targetAngles[], float angles[], float throttle, Motors motors, bool motorsReady);
-
+	void control(float targetAngles[], float angles[], float throttle, Motors &motors, bool motorsReady);
+	char StrControl[20];
 
 
 
@@ -68,8 +67,9 @@ float ki_yaw;
 
 
 float anglesErrorsOld[3];
-
+float anglesErrorsSum[3];
     
+float omega;
 
 };
 

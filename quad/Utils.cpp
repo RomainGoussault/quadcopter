@@ -69,3 +69,10 @@ int8_t sgn(int val) {
   return 1;
 }
 
+void printStatus()
+{
+	
+	
+	
+}
+

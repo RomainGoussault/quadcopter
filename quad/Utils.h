@@ -32,4 +32,8 @@ void isort(int *, byte);
 int findMedian(int *, byte);
 float filterSmooth(float, float, float);
 int8_t sgn(int);
+void printStatus();
+
+
+
 #endif
