@@ -224,7 +224,7 @@ void MPU6050::setDLPFMode(uint8_t mode) {
  * The FS_SEL parameter allows setting the full-scale range of the gyro sensors,
  * as described in the table below.
  *
- * <pre>
+ * <pre>get
  * 0 = +/- 250 degrees/sec
  * 1 = +/- 500 degrees/sec
  * 2 = +/- 1000 degrees/sec
@@ -1716,19 +1716,8 @@ bool MPU6050::getIntDataReadyStatus() {
  * @see MPU6050_RA_ACCEL_XOUT_H
  */
 void MPU6050::getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz, int16_t* mx, int16_t* my, int16_t* mz) {
-    
-	//get accel and gyro
-	getMotion6(ax, ay, az, gx, gy, gz);
-	
-	//read mag
-	I2Cdev::writeByte(devAddr, MPU6050_RA_INT_PIN_CFG, 0x02); //set i2c bypass enable pin to true to access magnetometer
-	delay(10);
-	I2Cdev::writeByte(MPU9150_RA_MAG_ADDRESS, 0x0A, 0x01); //enable the magnetometer
-	delay(10);
-	I2Cdev::readBytes(MPU9150_RA_MAG_ADDRESS, MPU9150_RA_MAG_XOUT_L, 6, buffer);
-	*mx = (((int16_t)buffer[0]) << 8) | buffer[1];
-    *my = (((int16_t)buffer[2]) << 8) | buffer[3];
-    *mz = (((int16_t)buffer[4]) << 8) | buffer[5];		
+    getMotion6(ax, ay, az, gx, gy, gz);
+    // TODO: magnetometer integration
 }
 /** Get raw 6-axis motion sensor readings (accel/gyro).
  * Retrieves all currently available motion sensor values.
@@ -2733,31 +2722,31 @@ uint8_t MPU6050::getOTPBankValid() {
 void MPU6050::setOTPBankValid(bool enabled) {
     I2Cdev::writeBit(devAddr, MPU6050_RA_XG_OFFS_TC, MPU6050_TC_OTP_BNK_VLD_BIT, enabled);
 }
-int8_t MPU6050::getXGyroOffset() {
+int8_t MPU6050::getXGyroOffsetTC() {
     I2Cdev::readBits(devAddr, MPU6050_RA_XG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, buffer);
     return buffer[0];
 }
-void MPU6050::setXGyroOffset(int8_t offset) {
+void MPU6050::setXGyroOffsetTC(int8_t offset) {
     I2Cdev::writeBits(devAddr, MPU6050_RA_XG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, offset);
 }
 
 // YG_OFFS_TC register
 
-int8_t MPU6050::getYGyroOffset() {
+int8_t MPU6050::getYGyroOffsetTC() {
     I2Cdev::readBits(devAddr, MPU6050_RA_YG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, buffer);
     return buffer[0];
 }
-void MPU6050::setYGyroOffset(int8_t offset) {
+void MPU6050::setYGyroOffsetTC(int8_t offset) {
     I2Cdev::writeBits(devAddr, MPU6050_RA_YG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, offset);
 }
 
 // ZG_OFFS_TC register
 
-int8_t MPU6050::getZGyroOffset() {
+int8_t MPU6050::getZGyroOffsetTC() {
     I2Cdev::readBits(devAddr, MPU6050_RA_ZG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, buffer);
     return buffer[0];
 }
-void MPU6050::setZGyroOffset(int8_t offset) {
+void MPU6050::setZGyroOffsetTC(int8_t offset) {
     I2Cdev::writeBits(devAddr, MPU6050_RA_ZG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, offset);
 }
 
@@ -2823,31 +2812,31 @@ void MPU6050::setZAccelOffset(int16_t offset) {
 
 // XG_OFFS_USR* registers
 
-int16_t MPU6050::getXGyroOffsetUser() {
+int16_t MPU6050::getXGyroOffset() {
     I2Cdev::readBytes(devAddr, MPU6050_RA_XG_OFFS_USRH, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
 }
-void MPU6050::setXGyroOffsetUser(int16_t offset) {
+void MPU6050::setXGyroOffset(int16_t offset) {
     I2Cdev::writeWord(devAddr, MPU6050_RA_XG_OFFS_USRH, offset);
 }
 
 // YG_OFFS_USR* register
 
-int16_t MPU6050::getYGyroOffsetUser() {
+int16_t MPU6050::getYGyroOffset() {
     I2Cdev::readBytes(devAddr, MPU6050_RA_YG_OFFS_USRH, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
 }
-void MPU6050::setYGyroOffsetUser(int16_t offset) {
+void MPU6050::setYGyroOffset(int16_t offset) {
     I2Cdev::writeWord(devAddr, MPU6050_RA_YG_OFFS_USRH, offset);
 }
 
 // ZG_OFFS_USR* register
 
-int16_t MPU6050::getZGyroOffsetUser() {
+int16_t MPU6050::getZGyroOffset() {
     I2Cdev::readBytes(devAddr, MPU6050_RA_ZG_OFFS_USRH, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
 }
-void MPU6050::setZGyroOffsetUser(int16_t offset) {
+void MPU6050::setZGyroOffset(int16_t offset) {
     I2Cdev::writeWord(devAddr, MPU6050_RA_ZG_OFFS_USRH, offset);
 }
 

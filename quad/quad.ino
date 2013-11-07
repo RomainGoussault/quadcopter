@@ -1,25 +1,30 @@
 
-
 #include <PinChangeInt.h>
 #include <Servo.h>
 #include <Radio.h>
-#include <Wire.h>
+//#include <Wire.h>
 #include "I2Cdev.h"
 #include "MPU6050.h"
 #include "Kalman.h" 
 #include "IMU.h" 
-
 #include <stdlib.h>
-
 #include <Utils.h>		
 #include "Motors.h"
 #include "FlightControl.h"  
+#if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
+    #include "Wire.h"
+#endif
 
-
-#define ROLL_MAX_RADIO 10
-#define PITCH_MAX_RADIO 10
+#define ROLL_MAX_RADIO 15
+#define PITCH_MAX_RADIO 15
 #define YAW_MAX_RADIO 180
 
+#define GREEN_LED_PIN 35
+#define YELLOW_LED_PIN 31
+#define RED_LED_PIN  33
+
+//Serial
+#define  SERIAL_PORT_SPEED  115200
 
 
 
@@ -30,13 +35,21 @@ int RadioChannels[7];
 bool radio_on;
 bool ch5_old=true;
 
+const int roll_map_ratio = 1/ (ROLL_MAX_RADIO - (-ROLL_MAX_RADIO)) / (MAP_RADIO_HIGH - (MAP_RADIO_LOW));
+const int pitch_map_ratio =1/  (PITCH_MAX_RADIO - (-PITCH_MAX_RADIO)) / (MAP_RADIO_HIGH - (MAP_RADIO_LOW));
+const int yaw_map_ratio =1/ (YAW_MAX_RADIO - (-YAW_MAX_RADIO)) / (MAP_RADIO_HIGH - (MAP_RADIO_LOW));
+
 
 //IMU
 IMU imu;
 bool calibrating = true;
 bool IMU_problem = false;
-
+float max_X ;
+float max_Y ;
 float angles[3];
+float rates[3];
+float old_a;
+float mdiff;
 
 
 //Motors
@@ -46,52 +59,72 @@ bool motorsReady = false;
 bool motorsReadyOld = false;
 bool motorsOn = false;
 
+
+
 //FlightControl
 FlightControl flightControl;
 float targetAngles[3];
 float throttle;
 
 
+
 //Measuring time
 unsigned long loop_time = 0;
 unsigned long start_loop = 0;
-float freq ;
+int freq ;
+double deltaF ;
+
 
 
 //Warning LED
-#define GREEN_LED_PIN 35
-#define YELLOW_LED_PIN 31
-#define RED_LED_PIN  33
-
-
 bool green_led;
 bool yellow_led;
 bool red_led;
 
-//Serial
-#define  SERIAL_PORT_SPEED  115200
 
-char StrMotorOn[10] = "  M  ON  ";
-char StrMotorOff[10] = "  M OFF  ";
-char StrMotorReady[10] = "  M Rdy  ";
 
-	
-	char Strfreq[7];
-	char StrAngles[16];
-	char StrSpeed[29];	
-	char package[sizeof(Strfreq) + sizeof(StrSpeed) + sizeof(StrAngles) + sizeof(StrMotorOn) + 1];
+//Printing
+char StrMotor[4];
+char StrMotorOn[4] = "ON";
+char StrMotorOff[4] = "OFF";
+char StrMotorReady[4] = "Rdy";
+char StrControl[6];
+char Strfreq[7];
+char StrAngles[6];
+char StrSpeed[4];	
 
-	
+int print_counter = 0;
+
+const int frequency_print_offset = 4;
+const int angle_print_offset =  frequency_print_offset+7;
+const int motor_print_offset = angle_print_offset+17;
+const int control_print_offset = motor_print_offset+7;
+
 
 
 void setup()
 {
+		//Warning LED
+	  pinMode(GREEN_LED_PIN, OUTPUT); 
+	  pinMode(RED_LED_PIN, OUTPUT);   
+  	  pinMode(YELLOW_LED_PIN, OUTPUT); 
+  	  	//LEDS
+	digitalWrite(GREEN_LED_PIN, motorsOn); 
+	digitalWrite(YELLOW_LED_PIN, !motorsOn && motorsReady); 
+	digitalWrite(RED_LED_PIN, !motorsReady); 
+  	  
+  	  
 	 // join I2C bus (I2Cdev library doesn't do this automatically)
-    Wire.begin();
+	#if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
+        Wire.begin();
+    #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
+       Fastwire::setup(800	, true); //800
+    #endif
+    
     Serial.begin( SERIAL_PORT_SPEED);
 	Serial.println("Start");
 
-	
+
 
 	//RADIO
 	//Power pin
@@ -109,23 +142,18 @@ void setup()
 
 	//IMU
 	imu.init();
- // timer = micros();
+
 
 	//Motors
-
 	motors.init();
 	
-	//Warning LED
-	  pinMode(GREEN_LED_PIN, OUTPUT); 
-	  pinMode(RED_LED_PIN, OUTPUT);   
-  	  pinMode(YELLOW_LED_PIN, OUTPUT); 
+	//Printing
+	Serial.print("Number of printing steps: ");
+	Serial.println(control_print_offset);
 	
-
 	//End of the setup phase
 	Serial.print("Setup done");
-	calibrating = false;
-	
-	//Printing
+	calibrating = false;	
 
 }
 
@@ -139,17 +167,10 @@ void setup()
 void loop()
 {	
 	// Measure loop rate
-	loop_time =  micros() - start_loop;
 	start_loop = micros();
 	freq =1000000/loop_time;
-    package[0] = '\0';
-		//unsigned long startF = micros();
-		//unsigned long endF = micros();
-		//unsigned long deltaF = endF - startF;
-		//Serial.print("deltaF  ");
-		//Serial.print(deltaF);
 
-	
+
 	//=======================================================================================
 	//                                   Radio
 	//=======================================================================================
@@ -160,32 +181,28 @@ void loop()
 		updateRadio();
 		interrupts();
 	}
-	
 	radio_on = getRadio(RadioChannels);
 
-	
+
+		  
+
 
 	//==============================================================================
 	//                                   IMU
 	//=======================================================================================
-	if (! (imu.processAngles(angles))  ) //continue only the data are OK
+	if (! (imu.processAngles(angles, rates))  ) //continue only the data are OK
 		{
 			IMU_problem = true;
 			Serial.print( "    IMU PBPBP   ");
 		}
-	
-	
 
-	
-	
-	
 
 	//=======================================================================================
 	//                                    MOTORS
 	//=======================================================================================
 	motorsReady = radio_on && !IMU_problem && !calibrating; 
 
-	if (ch5_old==false && RadioChannels[5]==true && RadioChannels[1]==0)
+	if (ch5_old==false && RadioChannels[5]==true && RadioChannels[1]==0 && motors.getMotorSpeed(1)<= MIN_MOTOR_SPEED_PWM )
 	{
 		motorsOn = true;
 	}
@@ -199,40 +216,22 @@ void loop()
 	motorsReadyOld = motorsReady;
 	
 
-
 	
+	 
 	
-	//Print the status of the motor
-	if (motorsReady)
-	{
-		if (motorsOn)
-		{
-			strcat(package, StrMotorOn);
-		}
-		else
-		{
-			strcat(package, StrMotorReady);
-		}
-	}
-	else
-	{
-		strcat(package, StrMotorOff);
-	}
 	
 
 	if(motorsReady)
 	{	
-		targetAngles[0] =  map_f(RadioChannels[4], MAP_RADIO_LOW, MAP_RADIO_HIGH, -ROLL_MAX_RADIO, ROLL_MAX_RADIO);
-		targetAngles[1] =  map_f(RadioChannels[2], MAP_RADIO_LOW, MAP_RADIO_HIGH, -PITCH_MAX_RADIO, PITCH_MAX_RADIO);
-		targetAngles[2] =  map_f(RadioChannels[3], MAP_RADIO_LOW, MAP_RADIO_HIGH, -YAW_MAX_RADIO, YAW_MAX_RADIO);
+		  targetAngles[0] = RadioChannels[4]*0.03-15;
+          targetAngles[1] = RadioChannels[2]*0.03-15;
+          targetAngles[2] = RadioChannels[3]*0.36-180;
+		
 		throttle = RadioChannels[1];
 		
+		flightControl.control(targetAngles, angles, rates, throttle, motors, motorsReady);
+			
 
-
-	
-		flightControl.control(targetAngles, angles, throttle, motors, motorsReady);
-
-		
 	}
 	else
 	{
@@ -246,40 +245,172 @@ void loop()
 	digitalWrite(RED_LED_PIN, !motorsReady); 
 	
 	
+	//Printing info to the serial 
+	switch (print_counter)
+	  {
+
+		//Frequency print
+	  case 1: 
+		   Serial.print("f ");  //64 µs
+		   break;
+	  case 2:
+		 //  	dtostrf(freq,1,0,&Strfreq[0]);
+		   itoa(freq,Strfreq,10);
+		   break;
+	  case 3:
+		   Serial.print(Strfreq);  //
+		   break;
+	  case 4:
+		   Serial.print("    ");  
+		   break;
+   
+		   
+		   
+		   
+		    
+		//Angles print
+	  case frequency_print_offset+1: //4+1=5
+		   dtostrf(angles[0],6,2,StrAngles);
+		   break;
+	  case frequency_print_offset+2:
+		   Serial.print(StrAngles);  //
+		   break;
+	  case frequency_print_offset+3:
+		   Serial.print(" ");  //
+		   break;
+	  case frequency_print_offset+4:
+		   dtostrf(angles[1],6,2,StrAngles);
+		   break;
+	  case frequency_print_offset+5:
+		   Serial.print(" ");  //
+		   break;		   
+	  case frequency_print_offset+6:
+		   Serial.print(StrAngles);  //
+		   break;		   
+	  case frequency_print_offset+7://11
+		   Serial.print("    ");  //
+		   break;		   
+		   
+		   
+		   
+		//Motors print
+	  case angle_print_offset+1: //13
+			if (motorsReady)
+			{
+				if (motorsOn)
+				{
+					strncpy(StrMotor, StrMotorOn, sizeof(StrMotor) - 1);
+				}
+				else
+				{
+					strncpy(StrMotor, StrMotorReady, sizeof(StrMotor) - 1);
+				}
+			}
+			else
+			{
+				strncpy(StrMotor, StrMotorOff, sizeof(StrMotor) - 1);
+			}
+			break;			
+	  case angle_print_offset+2:
+		   Serial.print(StrMotor);  //
+		   break;
+	  case angle_print_offset+3:
+		   Serial.print(" ");  //
+		   break;
+	  case angle_print_offset+4:
+		   Serial.print(" ");  //
+		   break;		   
+	  case angle_print_offset+5: 
+		   itoa(motors.getMotorSpeed(1),StrSpeed,10);
+		   break;
+	  case angle_print_offset+6:
+		   Serial.print(StrSpeed);  //
+		   break;
+	  case angle_print_offset+7:
+		   Serial.print("  ");  //
+		   break;			   
+	  case angle_print_offset+8:
+		   itoa(motors.getMotorSpeed(2),StrSpeed,10);
+		   break;
+	  case angle_print_offset+9:
+		   Serial.print(StrSpeed);  //
+		   break;	
+	  case angle_print_offset+10:  //23
+		   Serial.print("  ");  //
+		   break;			   
+	  case angle_print_offset+11: 
+		   itoa(motors.getMotorSpeed(3),StrSpeed,10);
+		   break;
+	  case angle_print_offset+12:
+		   Serial.print(StrSpeed);  //
+		   break;
+	  case angle_print_offset+13:
+		   Serial.print("  ");  //
+		   break;
+	  case angle_print_offset+14:
+		   itoa(motors.getMotorSpeed(4),StrSpeed,10);
+		   break;		   
+	  case angle_print_offset+15:
+		   Serial.print(StrSpeed);  //
+		   break;			   	   
+	  case angle_print_offset+16:
+		   Serial.print("    ");  //
+		   break;		  
+	  case angle_print_offset+17:
+		   Serial.print("    ");  //
+		   break;			   
+		   
+		   //Control print
+	  case motor_print_offset+1:
+		   Serial.print("kp ");  //
+		   break;				   
+	  case motor_print_offset+2:
+			dtostrf(flightControl.kp_roll,6,2,StrControl);
+		   break;	
+	  case motor_print_offset+3:
+		   Serial.print(StrControl);  //
+		   break;				   
+	  case motor_print_offset+4:
+	    	Serial.print("  ");  //
+		   break;		   
+	  case motor_print_offset+5:
+			dtostrf(flightControl.i_on,1,2,StrControl);
+		   break;		   
+	  case motor_print_offset+6:
+		   Serial.print(StrControl);  //
+		   break;				   
+	  case motor_print_offset+7:
+	    	Serial.print("  ");  //
+		   break;		
+		   
+		   		   
+	   		   
+	  case control_print_offset+1:
+		   Serial.println("");  //
+		   print_counter=1;
+		   break;
+	  }
 	
+	 print_counter++;
+	 
+	 
+	 		   //dtostrf(angles[0],6,2,StrAngles);
+		   //Serial.print(StrAngles);  //
+
+//Serial.print("   "); 
+
+//Serial.println("   "); 
+	while ((micros() - start_loop)<LOOP_TIME)
+	{
+		
+	}
 	
-	//printStatus();
+	loop_time =  micros() - start_loop; //Calculating loop_time to calculate freqnc
+	
+		   
 
-
-
-
-	dtostrf(freq,1,0,&Strfreq[2]);
-	dtostrf(angles[1],6,2,&StrAngles[7]);
-	dtostrf(angles[0],6,2,StrAngles);
-	dtostrf(motors.getMotorSpeed(1),6,2,StrSpeed);
-	dtostrf(motors.getMotorSpeed(2),6,2,&StrSpeed[7]);
-	dtostrf(motors.getMotorSpeed(3),6,2,&StrSpeed[14]);
-	dtostrf(motors.getMotorSpeed(4),6,2,&StrSpeed[21]);
-	Strfreq[0] = 'f';
-	Strfreq[1] = ' ';
-	Strfreq[5] = '\t';
-	Strfreq[6] = '\0';
-	StrAngles[6] = '\t';
-	StrAngles[13] = '\t';
-	StrAngles[14] = '\t';
-	StrAngles[15] = '\0';	
-	StrSpeed[6] = '\t';
-	StrSpeed[13] = '\t';
-	StrSpeed[20] = '\t';
-	StrSpeed[27] = '\t';	
-	StrSpeed[28] = '\0';
-	strcat(package, Strfreq);
-	strcat(package, StrAngles);
-	strcat(package, StrSpeed);
-	strcat(package, flightControl.StrControl);
-
-	Serial.println(package);
-
+	 
+	 
 }
 
 

@@ -57,7 +57,8 @@ bool getRadio(int pChannels[])
 	uint16_t ch5=0;
 	uint16_t ch6=0;
 
-	
+		
+
 	
     //Check if radio is OFF
 	diff_ch5 = unCh5In-CH5_OFF;
@@ -72,16 +73,24 @@ bool getRadio(int pChannels[])
 		return false;
 	}
 	
-	
-    
-    
-    
-	//value in [MAP_RADIO_LOW - MAP_RADIO_HIGH] 
-	 ch1 = MAP_RADIO_HIGH 	- map(unCh1In, MIN_1, MAX_1, MAP_RADIO_LOW-DEADZONE*DEADZONE_ENABLE, MAP_RADIO_HIGH+DEADZONE*DEADZONE_ENABLE);
-	 ch2 = 	map(unCh2In, MIN_2, MAX_2, MAP_RADIO_LOW-DEADZONE*DEADZONE_ENABLE	, MAP_RADIO_HIGH+DEADZONE*DEADZONE_ENABLE);
-	 ch3 = map(unCh3In, 	MIN_3, MAX_3, MAP_RADIO_LOW-DEADZONE*DEADZONE_ENABLE, 	MAP_RADIO_HIGH+DEADZONE*DEADZONE_ENABLE);
-	 ch4 = MAP_RADIO_HIGH - 	map(unCh4In, MIN_4, MAX_4, MAP_RADIO_LOW-DEADZONE*DEADZONE_ENABLE	, MAP_RADIO_HIGH+DEADZONE*DEADZONE_ENABLE);
 
+    
+    
+	//value in [MAP_RADIO_LOW - MAP_RADIO_HIGH]
+	//The following expressions replace the map expression but are faster at run-time
+	 ch1 = -1.017*unCh1In+2035;
+	 ch2 = 0.9685*unCh2In-922;
+	 ch3 = 0.9335*unCh3In-811;
+	 ch4 = -0.925*unCh4In+1814;
+	 //ch1 = MAP_RADIO_HIGH 	- map(1000, MIN_1, MAX_1, MAP_RADIO_LOW-DEADZONE*DEADZONE_ENABLE, MAP_RADIO_HIGH+DEADZONE*DEADZONE_ENABLE);
+	//ch2 = 	map(2000, MIN_2, MAX_2, MAP_RADIO_LOW-DEADZONE*DEADZONE_ENABLE	, MAP_RADIO_HIGH+DEADZONE*DEADZONE_ENABLE);
+	// ch3 = map(2000, 	MIN_3, MAX_3, MAP_RADIO_LOW-DEADZONE*DEADZONE_ENABLE, 	MAP_RADIO_HIGH+DEADZONE*DEADZONE_ENABLE);
+	// ch4 = MAP_RADIO_HIGH - 	map(1000, MIN_4, MAX_4, MAP_RADIO_LOW-DEADZONE*DEADZONE_ENABLE	, MAP_RADIO_HIGH+DEADZONE*DEADZONE_ENABLE);
+
+
+	
+
+		
 	// 0 or 1 for channels 5 or 6
 	if (unCh5In >= MID_5)
 	{ch5=1;}

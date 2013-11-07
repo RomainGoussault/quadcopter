@@ -24,7 +24,7 @@ public:
         /* We will set the varibles like so, these can also be tuned by the user */
         Q_angle = 0.001;
         Q_bias = 0.003;
-        R_measure = 0.03;
+        R_measure = 0.03*10;
         
         bias = 0; // Reset bias
         P[0][0] = 0; // Since we assume tha the bias is 0 and we know the starting angle (use setAngle), the error covariance matrix is set like so - see: http://en.wikipedia.org/wiki/Kalman_filter#Example_application.2C_technical

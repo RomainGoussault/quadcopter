@@ -26,6 +26,13 @@ float map_f(float  x, float  in_min,float   in_max, float  out_min, float  out_m
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+//new version of map_f which is a bit faster for the RADIO data than map_f
+float map_f_s(int  x, int  in_min, int out_min, int ratio)
+{
+  return (x - in_min) / ratio + out_min;
+}
+
+
 
 float mean(int m, float a[]) {
     int sum=0, i;
@@ -75,4 +82,23 @@ void printStatus()
 	
 	
 }
+
+
+float constrain_f(float x, float min, float max)
+{
+	if (x>max)
+	{
+		return max;
+	}
+	if (x<min)
+	{
+		return min;
+	}
+	else
+	{
+		return x;
+	}
+}
+
+
 

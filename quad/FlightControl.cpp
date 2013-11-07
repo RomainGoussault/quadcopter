@@ -22,35 +22,47 @@
 
 
 FlightControl::FlightControl() {
-	float ku = 0.065/100;
-	kp_roll= 0.001;
-	kd_roll = 0;//0.075*ku*1.1 / 0.02;
-	ki_roll = 0*0.5*ku*0.9*0.02;
+	
+	float ku = 3.0/10;
+	
+	angle_loop_time = LOOP_TIME* ANGLE_LOOP_DIVIDER;
+	
+	incomingByte = 0;
+	multiplier = 1.1;	
+	
+	i_on = false;
+	
+	kp_roll= 0.5*ku;
+	ki_roll = 1.2*ku*2/angle_loop_time*1000000;
+	kd_roll = 0.075*ku*0.5*angle_loop_time/1000000;
+
 	anglesErrorsSum[0]=0;
+	
+	i_max='0';
+	
+
+	
+	max_I_term = 2;
+	
+	//counter_angle_loop = 0;
+	
+	//PID rate coeff
+	kp_rate_roll = 1;
+	//ki_rate_roll = 1.2*3*3/LOOP_TIME*1000000;
+	//kd_rate_roll = 0.075*0.3*LOOP_TIME/1000000;
+	
+	
+	counter_angle_loop=ANGLE_LOOP_DIVIDER;
+	
 }
 
 
 
 
-void FlightControl::control(float targetAngles[], float angles[], float throttle, Motors &motors, bool motorsReady) {
+void FlightControl::control(float targetAngles[], float angles[], float rates[], float throttle, Motors &motors, bool motorsReady) {
+
 	
-	//omega = 1.0/200.0*(millis()-17000) /1000;
-	int incomingByte = 0;
-	float targetRate[3];
-	float multiplier = 1.1;
-	//kp_pitch= *1;
-	//kp_yaw=0.1;
- 
-	//kd_roll=multiplier *1;
-	//kd_pitch=multiplier *1;
-	//kd_yaw=0.1; 
-	
-	//ki_roll=0;
-	//ki_pitch=0;
-	//ki_yaw=0.1;
-	
-	
-	
+			
 	//Setting gain of the PID
 	if (Serial.available() > 0) 
 	{ 
@@ -62,6 +74,10 @@ void FlightControl::control(float targetAngles[], float angles[], float throttle
 			kp_roll *= multiplier;
 			kd_roll *= multiplier;
 			ki_roll *= multiplier;
+			
+			//kp_rate_roll *= multiplier;
+			//ki_rate_roll *= multiplier;	
+			//kd_rate_roll *= multiplier;		
 		}
 		if (incomingByte == 'p' )
 		{
@@ -69,119 +85,150 @@ void FlightControl::control(float targetAngles[], float angles[], float throttle
 			kp_roll /= multiplier;
 			kd_roll /= multiplier;
 			ki_roll /= multiplier;
+			
+			//kp_rate_roll /= multiplier;
+			//ki_rate_roll /= multiplier;
+			//kd_rate_roll /= multiplier;
 		}
+		
+		if (incomingByte == 'i' )
+		{
+			i_on=!i_on;
+		}
+		if (incomingByte == 'D' )
+		{
+			kd_roll *= multiplier;
+		}
+		if (incomingByte == 'd' )
+		{
+			kd_roll /= multiplier;
+		}
+		
 	}
 	
-
 	
-	for (int i = 0; i < 3 ; i++)
+
+		
+						
+
+
+	if (RATE_MODE)
 	{
+		//Speed Loop only
+		for (int i = 0; i < 2 ; i++)
+		{
+			//targetRate[i] = targetAngles[i];
+			//ratesErrors[i] = targetRate[i] - rates[i];
+			ratesErrors[i] = targetAngles[i] - rates[i];
+			//ratesErrorsD[i] = kd_rate_roll*( ratesErrors[i] - ratesErrorsOld[i]) ;	
+			//ratesErrorsSum[i] += i_on*ki_rate_roll*ratesErrors[i];
+			//ratesErrorsSum[i]= i_on*constrain_f( anglesErrorsSum[i], -MAX_I_TERM, MAX_I_TERM);
+			//ratesErrorsOld[i] = ratesErrors[i];
+			sortiePIDrate[i] = kp_rate_roll * ratesErrors[i] ;//+  ratesErrorsSum[i] + ratesErrorsD[i];
+		}
+		
+		U2 = CONTROL_ON*kp_rate_roll * ratesErrors[0] ;
+		U3 = 0*CONTROL_ON*sortiePIDrate[1] ;
+		
+	}
+	else
+	{
+		//Position Loop
+		if (counter_angle_loop==ANGLE_LOOP_DIVIDER)
+		{
+			for (int i = 0; i < 2 ; i++)
+			{
+				anglesErrors[i] = targetAngles[i] - angles[i];
+				anglesErrorsD[i] = kd_roll*( anglesErrors[i] - anglesErrorsOld[i]) ;
+				anglesErrorsSum[i] += i_on*ki_roll*anglesErrors[i];
+				anglesErrorsSum[i]= i_on*constrain_f( anglesErrorsSum[i], -MAX_I_TERM, MAX_I_TERM);
+				anglesErrorsOld[i] = anglesErrors[i];
+				sortiePIDangle[i] = kp_roll * anglesErrors[i] + anglesErrorsSum[i] + anglesErrorsD[i];	
+			}
+			counter_angle_loop=0;
+		}
+		
 
-		anglesErrors[i] = targetAngles[i] - angles[i];
-		anglesErrorsD[i] = ( anglesErrors[i] - anglesErrorsOld[i]) ;
-		anglesErrorsSum[i] += anglesErrors[i];
-		constrain(anglesErrorsSum[i], -MAX_I_TERM, MAX_I_TERM);
-		anglesErrorsOld[i] = anglesErrors[i];
+
+		//Speed Loop 
+		for (int i = 0; i < 2 ; i++)
+		{
+			targetRate[i] = sortiePIDangle[i];
+			ratesErrors[i] = targetRate[i] - rates[i];
+		}
+		
+		
+		U2 = CONTROL_ON*(kp_rate_roll * ratesErrors[0]);
+		U3 = 0*CONTROL_ON*(kp_rate_roll * ratesErrors[1]);
 	}
 	
-
 	
+
+	//U1 = map_f(throttle, MAP_RADIO_LOW , MAP_RADIO_HIGH, 0, 80);
+	U1 = throttle*0.10;
+	
+	U4=CONTROL_ON*0;	
+	
+		 //Serial.print(ratesErrors[0]); 
+//Serial.print("   "); 
+
+		
+		
 	//Roll is control by M2 and M4
 	//Ptich is control by M1 and M3
-
-	float U1, U2, U3, U4;
-	float w1, w2, w3, w4;
-
-
-	U2 = (kp_roll * anglesErrors[0]);
-	//U2 = 0.2*sin(omega*millis()/1000);
-	U3 = -0*(kp_pitch * anglesErrors[1] );
-	U4 =0*(kp_yaw * anglesErrors[2])	 ;
-
-	U1 = map_f(throttle, MAP_RADIO_LOW , MAP_RADIO_HIGH, 0, 80);
-
-
-	w1 =  0*(U3+U1-U4);
-	w4 = 1* (- U2+U4+U1);
-	w3 =  0*(U1- U3-U4);
-	w2= 1*( U4+ U2+U1);
+	w1 = 1* (U1 + U3 - U4); //ok
+	w4 = 1* (U1 + U2 + U4); //ok
+	w3 = 1* (U1 - U3 - U4);  //
+	w2=  1* (U1 - U2 + U4);  // vibbbbb 
 	//swith 2 et 4
 
 
-
-
-
 	if (w1<0) {
-		w1=0;
-	} else {
-	//	w1=sqrt(w1);
-	}
+		w1=0;} 
 
 	if (w2<0) {
-		w2=0;
-	} else {
-	//	w2=sqrt(w2);
-	}
+		w2=0;}
 
 	if (w3<0) {
-		w3=0;
-	} else {
-	//	w3=sqrt(w3);
-	}
+		w3=0;}
 
 	if (w4<0) {
-		w4=0;
-	} else {
-	//w4=sqrt(w4);
+		w4=0;} 
+
+
+
+
+	//if (  abs(ki_roll*anglesErrorsSum[0]) == MAX_I_TERM)
+	//{
+		//i_max='1';
+	//}
+	//else
+	//{
+		//i_max='0';
+	//}
+	
+
+
+	if (  i_on)
+	{
+		i_max='1';
 	}
-
-
-	StrControl[0]='\t';
-	StrControl[1]='k';
-	StrControl[2]='p';
-	StrControl[3]=' ';
-	dtostrf(kp_roll,6,4,&StrControl[4]);
-	StrControl[10]='\0';	
-	
-	
+	else
+	{
+		i_max='0';
+	}
 	
 
-	//Serial.print(" w1 ");
-	//Serial.print(w1);
 
-	//Serial.print("|w2 ");
-	//Serial.print(w2);
 
-	//Serial.print("|w3 ");
-	//Serial.print(w3);
 
-	//Serial.print("|w4 ");
-	//Serial.print(w4);
-	//Serial.print("|");
-
-	motors.setMotorSpeed(1, w1);
-	motors.setMotorSpeed(2, w2);
-	motors.setMotorSpeed(3, w3);
-	motors.setMotorSpeed(4, w4);
+	motors.setMotorSpeed(1, 1*w1);
+	motors.setMotorSpeed(3, 1*w3);
+	motors.setMotorSpeed(4, 1*w4);
+	motors.setMotorSpeed(2, 1*w2);
 	
 
-	//Serial.print("   U2 ");
-	//Serial.print(U2,4);	
-	
-	//Serial.print("   omega  ");
-	//Serial.print(omega,4);		
-
-
-	//Serial.print("\t kp");
-	//Serial.print(kp_roll,4);	
-	
-	//Serial.print("   kd roll ");
-	//Serial.print(kd_roll,4);
-	
-	//Serial.print("   ki roll ");
-	//Serial.print(ki_roll,4);	
-	
-	
+	counter_angle_loop++;
 }
 
 

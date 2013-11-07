@@ -14,27 +14,34 @@
   GNU General Public License for more details. 
 
   You should have received a copy of the GNU General Public License 
-  along with this program. If not, see <http://www.gnu.org/licenses/>. 
+  afloat with this program. If not, see <http://www.gnu.org/licenses/>. 
 */
 #ifndef IMU_h
 #define IMU_h
 
 #include <Arduino.h>
 #include <Utils.h>
-#include <Wire.h>
 #include "I2Cdev.h"
 #include "MPU6050.h"
 #include "Kalman.h"
+#include "Filter.h"
 
+
+#if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
+    #include "Wire.h"
+#endif
 
 #define  ROLL_MAX_IMU  30
 #define  PITCH_MAX_IMU 30
 
-#define  ROLL_OFFSET -0.64
-#define  PITCH_OFFSET 0.07
-#define  YAW_OFFSET 9.70
+#define  ROLL_OFFSET -0.34
+#define  PITCH_OFFSET 2.53
+#define  YAW_OFFSET 0
 
-//#define  rac22 0.707
+
+
+
+
 
 class IMU
 {
@@ -47,9 +54,9 @@ class IMU
   void init();  
  
   //Process the angles
-  bool processAngles(float angles[] );
-    
+  bool processAngles(float angles[],float rates[] );
 
+	//float iir(float NewSample);
 
 
     
@@ -57,17 +64,41 @@ class IMU
     
 	Kalman kalmanX; // Create the Kalman instances
 	Kalman kalmanY;
-
+	Kalman kalmanZ;
 	/* IMU Data */
 	int16_t accX, accY, accZ;
 	int16_t gyroX, gyroY, gyroZ;
 
-	double accXangle, accYangle; // Angle calculate using the accelerometer
-	double gyroXangle, gyroYangle; // Angle calculate using the gyro
-	double kalAngleX, kalAngleY; // Calculate the angle using a Kalman filter
+	float accXangle, accYangle, accZangle; // Angle calculate using the accelerometer
+	float gyroXangle, gyroYangle, gyroZangle; // Angle calculate using the gyro
+	float kalAngleX, kalAngleY, kalAngleZ; // Calculate the angle using a Kalman filter
+	float compAngleX, compAngleY, compAngleX0;
+
 	MPU6050 accelgyro;
 	uint32_t timer;
+	float gyroXoffset, gyroYoffset, gyroZoffset;
+	
+	float gyroXrate ;
+	float gyroYrate ;
+	float gyroZrate;
+	
+    //float xv[NZEROS+1], yv[NPOLES+1];
+      //float xv1[NZEROS+1], yv1[NPOLES+1];  
+	float accXf;
+	float accYf;
+	float accZf;
+	
+	Filter filterX;
+	Filter filterY;	
+	Filter filterZ;
 
+	
+	
+	float alpha_gyro;
+    float c;
+    float dt;
+	char StrAnglesvib[7];
+	int j;
 };
 
 #endif

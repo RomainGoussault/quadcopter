@@ -35,6 +35,11 @@ Motors::Motors(){
 }
 
 void Motors::init(){
+	
+	pinMode(MOTOR_1_PIN, OUTPUT); 
+	pinMode(MOTOR_2_PIN, OUTPUT); 
+	pinMode(MOTOR_3_PIN, OUTPUT); 
+	pinMode(MOTOR_4_PIN, OUTPUT); 
    setAllSpeed(0);
 }
 
@@ -50,12 +55,18 @@ void Motors::setMotorsOn(bool b){
 
 void Motors::setMotorSpeed(byte motor, float speed){
 
-	//Serial.print(speed);
-	//Serial.print("   ");
 	
-	speed = map_f(speed, MIN_MOTOR_SPEED_CONTROL, MAX_MOTOR_SPEED_CONTROL, MIN_MOTOR_SPEED_PWM, MAX_MOTOR_SPEED_PWM);
+//	speed = map_f(speed, MIN_MOTOR_SPEED_CONTROL, MAX_MOTOR_SPEED_CONTROL, MIN_MOTOR_SPEED_PWM, MAX_MOTOR_SPEED_PWM);
+	speed = (speed *1) +MIN_MOTOR_SPEED_PWM;
 	speed = constrain(speed, MIN_MOTOR_SPEED_PWM, MAX_MOTOR_SPEED_PWM);
-
+	if (speed > 250)
+	{
+		allStop();
+		Serial.print( " Motor command > MAX_MOTOR_SPEED_PWM");
+		while(1);
+		
+	}
+	
 	analogWrite(motors[motor-1], speed*motorsOn);
 
 	motor_speeds[motor-1] = speed;

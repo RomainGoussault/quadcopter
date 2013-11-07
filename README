@@ -2,13 +2,44 @@ Code in progress to control a quadcopter on Arduino MEGA 2560.
 
 
 
+130
 
+1.3
 
 
 
 
 TO  DO:
-speed control
+
+pindmode output
+power plus proche
+ground
+
+
+SPEED LOOP 500/50Hz
+vib with new filters
+
+
+
+
+
+
+
+U3;
+remettre IMU en place
+
+
+
+
+
+
+now 3  +-1deg en rp
+
+
+atan2(x,sqrt(y+z))) ??
+low pass filter maison
+tete du gyro sans filtre?
+map_f à changer
 
 
 
@@ -38,9 +69,9 @@ git push origin master
 		IMU
 =========================================
 
-rouge VDD
+rouge VDD  (gauche à droite rouge / noir / noir )
 noir GND
-bleu SDA
+bleu SDA  vert à l'extremité
 vert SCL
 
 =========================================
