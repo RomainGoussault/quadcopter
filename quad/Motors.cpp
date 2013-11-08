@@ -57,7 +57,7 @@ void Motors::setMotorSpeed(byte motor, float speed){
 
 	
 //	speed = map_f(speed, MIN_MOTOR_SPEED_CONTROL, MAX_MOTOR_SPEED_CONTROL, MIN_MOTOR_SPEED_PWM, MAX_MOTOR_SPEED_PWM);
-	speed = (speed *1) +MIN_MOTOR_SPEED_PWM;
+	speed = (speed *2) +MIN_MOTOR_SPEED_PWM;
 	speed = constrain(speed, MIN_MOTOR_SPEED_PWM, MAX_MOTOR_SPEED_PWM);
 	if (speed > 250)
 	{

@@ -1,87 +1,9 @@
 Code in progress to control a quadcopter on Arduino MEGA 2560.
 
+Motors:Turnigy  D2830-11 1000kv
+ESC: Afro 30A
+Props: Gemfan 8''
+Frame: F450 + some wood :)
 
 
-130
-
-1.3
-
-
-
-
-TO  DO:
-
-pindmode output
-power plus proche
-ground
-
-
-SPEED LOOP 500/50Hz
-vib with new filters
-
-
-
-
-
-
-
-U3;
-remettre IMU en place
-
-
-
-
-
-
-now 3  +-1deg en rp
-
-
-atan2(x,sqrt(y+z))) ??
-low pass filter maison
-tete du gyro sans filtre?
-map_f à changer
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//Easy push
-git commit -a -m "bablal"
-git push origin master
-
-
-
-
-
-
-=========================================
-		IMU
-=========================================
-
-rouge VDD  (gauche à droite rouge / noir / noir )
-noir GND
-bleu SDA  vert à l'extremité
-vert SCL
-
-=========================================
-		PWM
-=========================================
-
-
-1) Arduino 2560 has 12 pins supporting PWM. They are from 2 to 13 included.
-
-2) the PWM default frequency is 490 Hz for all pins, with the exception of pin 13 and 4,
-whose frequency is 980 Hz (I checked with an oscilloscope).
-
-lien pour changer les fréquences: http://forum.arduino.cc/index.php?topic=72092.0
+ 
