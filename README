@@ -3,7 +3,8 @@ Code in progress to control a quadcopter on Arduino MEGA 2560.
 Motors:Turnigy  D2830-11 1000kv
 ESC: Afro 30A
 Props: Gemfan 8''
-Frame: F450 + some wood :)
+Frame: F450 + some wood and screws
 
+For more info look at the pdf file: Quadcopter_RG.pdf
 
  
