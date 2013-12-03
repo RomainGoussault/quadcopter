@@ -1,5 +1,7 @@
 /*
   FlightControl.h
+  Created by Romain Goussault <romain.goussault@gmail.com>
+  
   This program is free software: you can redistribute it and/or modify 
   it under the terms of the GNU General Public License as published by 
   the Free Software Foundation, either version 3 of the License, or 
@@ -30,7 +32,7 @@
 #define MAX_I_TERM 3
 #define RATE_MODE 0
 #define CONTROL_ON 1
-#define ANGLE_LOOP_DIVIDER 7
+#define ANGLE_LOOP_DIVIDER 7 //the angle loop runs ANGLE_LOOP_DIVIDER times slower than the speed loop
 #define  LOOP_TIME 2630
 
 

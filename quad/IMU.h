@@ -1,7 +1,6 @@
 /*
-  Motors.h - Library for controlling a set of Quadcopter motors (aka motors)
-  Created by Myles Grant <myles@mylesgrant.com>
-  See also: https://github.com/grantmd/QuadCopter
+  IMU.h - Library to use the IMU 
+  Created by Romain Goussault <romain.goussault@gmail.com>
   
   This program is free software: you can redistribute it and/or modify 
   it under the terms of the GNU General Public License as published by 
@@ -49,22 +48,17 @@ class IMU
   public:
 
   IMU();
-  
-  //initialize the IMU
   void init();  
- 
-  //Process the angles
   bool processAngles(float angles[],float rates[] );
 
-	//float iir(float NewSample);
 
 
     
   private:
     
-	Kalman kalmanX; // Create the Kalman instances
-	Kalman kalmanY;
-	Kalman kalmanZ;
+	//Kalman kalmanX; // Create the Kalman instances
+	//Kalman kalmanY;
+	//Kalman kalmanZ;
 	/* IMU Data */
 	int16_t accX, accY, accZ;
 	int16_t gyroX, gyroY, gyroZ;
@@ -83,7 +77,7 @@ class IMU
 	float gyroZrate;
 	
     //float xv[NZEROS+1], yv[NPOLES+1];
-      //float xv1[NZEROS+1], yv1[NPOLES+1];  
+     //float xv1[NZEROS+1], yv1[NPOLES+1];  
 	float accXf;
 	float accYf;
 	float accZf;

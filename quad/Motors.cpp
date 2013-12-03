@@ -24,7 +24,7 @@
 
 
 Motors::Motors(){  
-		Serial.println("constructeur  ");
+
 
   // Setup motors
   motors[0] = MOTOR_1_PIN;

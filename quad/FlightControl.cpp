@@ -1,5 +1,6 @@
 /*
   FlightControl.cpp
+  Created by Romain Goussault <romain.goussault@gmail.com>
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,46 +24,32 @@
 
 FlightControl::FlightControl() {
 	
+	//Setting up of the gain
 	float ku = 3.0/100;
-	
-	angle_loop_time = LOOP_TIME* ANGLE_LOOP_DIVIDER;
-	
-	incomingByte = 0;
-	multiplier = 1.1;	
-	
-	i_on = false;
-	
 	kp_roll= 0.5*ku;
 	ki_roll = 0.001*1.2*ku*2/angle_loop_time*1000000;
 	kd_roll = 1000*0.075*ku*0.5*angle_loop_time/1000000;
 
-	anglesErrorsSum[0]=0;
+	kp_rate_roll = 0.2;
 	
+	// I-term init
+	anglesErrorsSum[0]=0;
+	i_on = false;
 	i_max='0';
 	
+	incomingByte = 0;
+	multiplier = 1.1;	
 
-	
-	//max_I_term = 2;
-	
-	//counter_angle_loop = 0;
-	
-	//PID rate coeff
-	kp_rate_roll = 0.2;
-	//ki_rate_roll = 1.2*3*3/LOOP_TIME*1000000;
-	//kd_rate_roll = 0.075*0.3*LOOP_TIME/1000000;
-	
-	
+	//the angle loop runs ANGLE_LOOP_DIVIDER times slower than the speed loop
+	angle_loop_time = LOOP_TIME* ANGLE_LOOP_DIVIDER;
 	counter_angle_loop=ANGLE_LOOP_DIVIDER;
-	
 }
 
 
 
 
 void FlightControl::control(float targetAngles[], float angles[], float rates[], float throttle, Motors &motors, bool motorsReady) {
-
-	
-			
+		
 	//Setting gain of the PID
 	if (Serial.available() > 0) 
 	{ 
@@ -112,18 +99,13 @@ void FlightControl::control(float targetAngles[], float angles[], float rates[],
 		{
 			kp_rate_roll /= multiplier;
 		}
-		
 	}
 	
-	
-
-		
-						
-
 
 	if (RATE_MODE)
 	{
-		//Speed Loop only
+		//Speed Loop
+		//Only a Proportionnal feedback
 		for (int i = 0; i < 2 ; i++)
 		{
 			//targetRate[i] = targetAngles[i];
@@ -135,10 +117,8 @@ void FlightControl::control(float targetAngles[], float angles[], float rates[],
 			//ratesErrorsOld[i] = ratesErrors[i];
 			sortiePIDrate[i] = kp_rate_roll * ratesErrors[i] ;//+  ratesErrorsSum[i] + ratesErrorsD[i];
 		}
-		
 		U2 = 1*CONTROL_ON*kp_rate_roll * ratesErrors[0] ;
 		U3 = 1*CONTROL_ON*kp_rate_roll * ratesErrors[1] ;
-		
 	}
 	else
 	{
@@ -156,46 +136,32 @@ void FlightControl::control(float targetAngles[], float angles[], float rates[],
 			}
 			counter_angle_loop=0;
 		}
-		
-
-
 		//Speed Loop 
 		for (int i = 0; i < 2 ; i++)
 		{
 			targetRate[i] = sortiePIDangle[i];
 			ratesErrors[i] = targetRate[i] - rates[i];
 		}
-		
-		
+
 		U2 = 1*CONTROL_ON*(kp_rate_roll * ratesErrors[0]);
 		U3 = 1*CONTROL_ON*(kp_rate_roll * ratesErrors[1]);
 	}
 	
-	
 
 	//U1 = map_f(throttle, MAP_RADIO_LOW , MAP_RADIO_HIGH, 0, 80);
 	U1 = throttle*0.10;
-	
-	U4=CONTROL_ON*0;
+	U4=CONTROL_ON*0; //No Yaw control for the moment
 	
 		
-			 //Serial.print(ratesErrors[0]); 
-//Serial.print("   "); 
-		 //Serial.print(U2); 
-//Serial.print("   "); 
 
-	//Serial.println("   "); 	
 		
-	//Roll is control by M2 and M4
-	//Ptich is control by M1 and M3
+	//Roll is control by M2 and M4 via U2
+	//Ptich is control by M1 and M3 via U3
 		
-	w2=  1* (U1 + U2 + U4);  // vibbbbb 
-	w1 = 1* (U1 + U3 - U4); //ok
-	w4 = 1* (U1 - U2 + U4); //ok
+	w2=  1* (U1 + U2 + U4);  // 
+	w1 = 1* (U1 + U3 - U4); //
+	w4 = 1* (U1 - U2 + U4); //
 	w3 = 1* (U1 - U3 - U4);  //
-
-	//swith 2 et 4
-
 
 	if (w1<0) {
 		w1=0;} 
@@ -210,19 +176,6 @@ void FlightControl::control(float targetAngles[], float angles[], float rates[],
 		w4=0;} 
 
 
-
-
-	//if (  abs(ki_roll*anglesErrorsSum[0]) == MAX_I_TERM)
-	//{
-		//i_max='1';
-	//}
-	//else
-	//{
-		//i_max='0';
-	//}
-	
-
-
 	if (  i_on)
 	{
 		i_max='1';
@@ -231,17 +184,11 @@ void FlightControl::control(float targetAngles[], float angles[], float rates[],
 	{
 		i_max='0';
 	}
-	
-
-
-
 
 	motors.setMotorSpeed(1, 1*w1);
 	motors.setMotorSpeed(2, 1*w2);
 	motors.setMotorSpeed(3, 1*w3);
 	motors.setMotorSpeed(4, 1*w4);
-
-	
 
 	counter_angle_loop++;
 }
