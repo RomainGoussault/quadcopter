@@ -76,14 +76,6 @@ int8_t sgn(int val) {
   return 1;
 }
 
-void printStatus()
-{
-	
-	
-	
-}
-
-
 float constrain_f(float x, float min, float max)
 {
 	if (x>max)

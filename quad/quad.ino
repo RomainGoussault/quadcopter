@@ -221,6 +221,7 @@ void loop()
 
 	if(motorsReady)
 	{	
+		//The following expressions replace the map expression. They are much faster at run-time
 		  targetAngles[0] = RadioChannels[4]*0.03-15;
           targetAngles[1] = RadioChannels[2]*0.03-15;
           targetAngles[2] = RadioChannels[3]*0.36-180;

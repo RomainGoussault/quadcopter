@@ -1,9 +1,22 @@
 /*
-   Radio.cpp - Library 
-   based on the code posted on rcarduino.blogspot.com
-   Basically reads a 6ch Turnigy Radio.
-   Deadzone has been implemented
-   * 
+   Radio.cpp - Library to read a 6ch Turnigy Radio.
+	Deadzone has been implemented
+	Created by Romain Goussault <romain.goussault@gmail.com> 
+	Library based on the code posted on rcarduino.blogspot.com
+
+
+	This program is free software: you can redistribute it and/or modify 
+	it under the terms of the GNU General Public License as published by 
+	the Free Software Foundation, either version 3 of the License, or 
+	(at your option) any later version. 
+
+	This program is distributed in the hope that it will be useful, 
+	but WITHOUT ANY WARRANTY; without even the implied warranty of 
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+	GNU General Public License for more details. 
+
+	You should have received a copy of the GNU General Public License 
+	along with this program. If not, see <http://www.gnu.org/licenses/>. 
  */
 
 
@@ -11,7 +24,7 @@
 #include "Utils.h"
 
 // shared variables are updated by the ISR and read by loop.
-// In loop we immediatley take local copies so that the ISR can keep ownership of the
+// In loop we immediatly take local copies so that the ISR can keep ownership of the
 // shared ones. To access these in loop
 // we first turn interrupts off with noInterrupts
 // we take a copy to use in loop and the turn interrupts back on
@@ -47,7 +60,6 @@ uint16_t unCh6In;
 
 bool getRadio(int pChannels[])
 { 
-
 	int diff_ch5;
 	
 	uint16_t ch1=0;
@@ -57,9 +69,6 @@ bool getRadio(int pChannels[])
 	uint16_t ch5=0;
 	uint16_t ch6=0;
 
-		
-
-	
     //Check if radio is OFF
 	diff_ch5 = unCh5In-CH5_OFF;
 
@@ -73,11 +82,8 @@ bool getRadio(int pChannels[])
 		return false;
 	}
 	
-
-    
-    
 	//value in [MAP_RADIO_LOW - MAP_RADIO_HIGH]
-	//The following expressions replace the map expression but are faster at run-time
+	//The following expressions replace the map expression but are much faster at run-time
 	 ch1 = -1.017*unCh1In+2035;
 	 ch2 = 0.9685*unCh2In-922;
 	 ch3 = 0.9335*unCh3In-811;
@@ -87,9 +93,6 @@ bool getRadio(int pChannels[])
 	// ch3 = map(2000, 	MIN_3, MAX_3, MAP_RADIO_LOW-DEADZONE*DEADZONE_ENABLE, 	MAP_RADIO_HIGH+DEADZONE*DEADZONE_ENABLE);
 	// ch4 = MAP_RADIO_HIGH - 	map(1000, MIN_4, MAX_4, MAP_RADIO_LOW-DEADZONE*DEADZONE_ENABLE	, MAP_RADIO_HIGH+DEADZONE*DEADZONE_ENABLE);
 
-
-	
-
 		
 	// 0 or 1 for channels 5 or 6
 	if (unCh5In >= MID_5)
@@ -97,12 +100,10 @@ bool getRadio(int pChannels[])
 	else
 	{ch5=0;}
 
-
 	if (unCh6In >= MID_6)
 	{ch6=1;}
 	else
 	{ch6=0;}
-
 
 	pChannels[0]=0;
 	pChannels[1]=ch1;
@@ -112,11 +113,8 @@ bool getRadio(int pChannels[])
 	pChannels[5]=ch5;
 	pChannels[6]=ch6;
 
-
-
 	if(DEADZONE_ENABLE)
 	{
-
 		int i;
 		for(i=2; i<=4; i++)
 		{
@@ -150,9 +148,7 @@ bool getRadio(int pChannels[])
 			 Serial.println(pChannels[i]);
 	    }	
 	}
-
-return true;
-
+	return true;
 }
 
 

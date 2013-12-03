@@ -1,6 +1,7 @@
 /*
   Utils.h - Utility functions for my quadcopter code
-  Created by Myles Grant <myles@mylesgrant.com>
+
+  Based on the code of Myles Grant <myles@mylesgrant.com>
   See also: https://github.com/grantmd/QuadCopter
   
   This program is free software: you can redistribute it and/or modify 
@@ -33,8 +34,6 @@ void isort(int *, byte);
 int findMedian(int *, byte);
 float filterSmooth(float, float, float);
 int8_t sgn(int);
-void printStatus();
-
 
 
 #endif
