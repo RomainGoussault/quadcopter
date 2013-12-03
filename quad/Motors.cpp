@@ -57,15 +57,23 @@ void Motors::setMotorSpeed(byte motor, float speed){
 
 	
 //	speed = map_f(speed, MIN_MOTOR_SPEED_CONTROL, MAX_MOTOR_SPEED_CONTROL, MIN_MOTOR_SPEED_PWM, MAX_MOTOR_SPEED_PWM);
-	speed = (speed *2) +MIN_MOTOR_SPEED_PWM;
-	speed = constrain(speed, MIN_MOTOR_SPEED_PWM, MAX_MOTOR_SPEED_PWM);
-	if (speed > 250)
+	speed = (speed *2) +MIN_MOTOR_SPEED_PWM-6;
+//	speed = constrain(speed, MIN_MOTOR_SPEED_PWM, MAX_MOTOR_SPEED_PWM);
+	//if (speed > 240)
+	//{
+		//allStop();
+		//Serial.print( " Motor command > MAX_MOTOR_SPEED_PWM");
+		//while(1);
+		
+	//}
+	if (speed > 260)
 	{
 		allStop();
 		Serial.print( " Motor command > MAX_MOTOR_SPEED_PWM");
 		while(1);
 		
 	}
+	
 	
 	analogWrite(motors[motor-1], speed*motorsOn);
 

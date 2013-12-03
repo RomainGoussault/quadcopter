@@ -3,9 +3,9 @@
 #define Filter_h
 
 
-#define NZEROS 5
-#define NPOLES 5
-#define GAIN   2.291257749e+03
+#define NZEROS 8
+#define NPOLES 8
+#define GAIN   3.901575440e+06
 
 
 

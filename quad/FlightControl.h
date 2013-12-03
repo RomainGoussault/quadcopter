@@ -27,11 +27,11 @@
 //motor1: first white, motor2 second white
 //4 and 2 counter clockwise
 
-#define MAX_I_TERM 2
+#define MAX_I_TERM 3
 #define RATE_MODE 0
 #define CONTROL_ON 1
 #define ANGLE_LOOP_DIVIDER 7
-#define  LOOP_TIME 2400
+#define  LOOP_TIME 2630
 
 
 class FlightControl

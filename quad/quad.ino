@@ -202,7 +202,7 @@ void loop()
 	//=======================================================================================
 	motorsReady = radio_on && !IMU_problem && !calibrating; 
 
-	if (ch5_old==false && RadioChannels[5]==true && RadioChannels[1]==0 && motors.getMotorSpeed(1)<= MIN_MOTOR_SPEED_PWM )
+	if (ch5_old==false && RadioChannels[5]==true && RadioChannels[1]==0 ) //&& motors.getMotorSpeed(1)<= MIN_MOTOR_SPEED_PWM && motors.getMotorSpeed(2)<= MIN_MOTOR_SPEED_PWM && motors.getMotorSpeed(3)<= MIN_MOTOR_SPEED_PWM && motors.getMotorSpeed(4)<= MIN_MOTOR_SPEED_PWM 
 	{
 		motorsOn = true;
 	}
@@ -373,25 +373,36 @@ void loop()
 	  case motor_print_offset+4:
 	    	Serial.print("  ");  //
 		   break;		   
-	  case motor_print_offset+5:
-			dtostrf(flightControl.i_on,1,2,StrControl);
-		   break;		   
+	    case motor_print_offset+5:
+			dtostrf(flightControl.kd_roll,6,2,StrControl);
+		   break;	
 	  case motor_print_offset+6:
 		   Serial.print(StrControl);  //
 		   break;				   
 	  case motor_print_offset+7:
 	    	Serial.print("  ");  //
+		   break;		   
+		   case motor_print_offset+8:
+			dtostrf(flightControl.i_on,1,2,StrControl);
+		   break;		   
+	  case motor_print_offset+9:
+		   Serial.print(StrControl);  //
+		   break;				   
+	  case motor_print_offset+10:
+	    	Serial.print("  ");  //
 		   break;		
 		   
 		   		   
 	   		   
-	  case control_print_offset+1:
+	  case control_print_offset+11:
 		   Serial.println("");  //
 		   print_counter=1;
 		   break;
 	  }
 	
+	//print_counter=200;
 	 print_counter++;
+	 
 	 
 	 
 	 		   //dtostrf(angles[0],6,2,StrAngles);

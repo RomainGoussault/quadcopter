@@ -34,8 +34,8 @@
 #define  ROLL_MAX_IMU  30
 #define  PITCH_MAX_IMU 30
 
-#define  ROLL_OFFSET -0.34
-#define  PITCH_OFFSET 2.53
+#define  ROLL_OFFSET -0.16
+#define  PITCH_OFFSET 2.10
 #define  YAW_OFFSET 0
 
 

@@ -23,7 +23,7 @@
 
 FlightControl::FlightControl() {
 	
-	float ku = 3.0/10;
+	float ku = 3.0/100;
 	
 	angle_loop_time = LOOP_TIME* ANGLE_LOOP_DIVIDER;
 	
@@ -33,8 +33,8 @@ FlightControl::FlightControl() {
 	i_on = false;
 	
 	kp_roll= 0.5*ku;
-	ki_roll = 1.2*ku*2/angle_loop_time*1000000;
-	kd_roll = 0.075*ku*0.5*angle_loop_time/1000000;
+	ki_roll = 0.001*1.2*ku*2/angle_loop_time*1000000;
+	kd_roll = 1000*0.075*ku*0.5*angle_loop_time/1000000;
 
 	anglesErrorsSum[0]=0;
 	
@@ -42,12 +42,12 @@ FlightControl::FlightControl() {
 	
 
 	
-	max_I_term = 2;
+	//max_I_term = 2;
 	
 	//counter_angle_loop = 0;
 	
 	//PID rate coeff
-	kp_rate_roll = 1;
+	kp_rate_roll = 0.2;
 	//ki_rate_roll = 1.2*3*3/LOOP_TIME*1000000;
 	//kd_rate_roll = 0.075*0.3*LOOP_TIME/1000000;
 	
@@ -76,8 +76,8 @@ void FlightControl::control(float targetAngles[], float angles[], float rates[],
 			ki_roll *= multiplier;
 			
 			//kp_rate_roll *= multiplier;
-			//ki_rate_roll *= multiplier;	
-			//kd_rate_roll *= multiplier;		
+			////ki_rate_roll *= multiplier;	
+			////kd_rate_roll *= multiplier;		
 		}
 		if (incomingByte == 'p' )
 		{
@@ -104,6 +104,15 @@ void FlightControl::control(float targetAngles[], float angles[], float rates[],
 			kd_roll /= multiplier;
 		}
 		
+		if (incomingByte == 'R' )
+		{
+			kp_rate_roll *= multiplier;
+		}
+		if (incomingByte == 'r' )
+		{
+			kp_rate_roll /= multiplier;
+		}
+		
 	}
 	
 	
@@ -127,8 +136,8 @@ void FlightControl::control(float targetAngles[], float angles[], float rates[],
 			sortiePIDrate[i] = kp_rate_roll * ratesErrors[i] ;//+  ratesErrorsSum[i] + ratesErrorsD[i];
 		}
 		
-		U2 = CONTROL_ON*kp_rate_roll * ratesErrors[0] ;
-		U3 = 0*CONTROL_ON*sortiePIDrate[1] ;
+		U2 = 1*CONTROL_ON*kp_rate_roll * ratesErrors[0] ;
+		U3 = 1*CONTROL_ON*kp_rate_roll * ratesErrors[1] ;
 		
 	}
 	else
@@ -158,8 +167,8 @@ void FlightControl::control(float targetAngles[], float angles[], float rates[],
 		}
 		
 		
-		U2 = CONTROL_ON*(kp_rate_roll * ratesErrors[0]);
-		U3 = 0*CONTROL_ON*(kp_rate_roll * ratesErrors[1]);
+		U2 = 1*CONTROL_ON*(kp_rate_roll * ratesErrors[0]);
+		U3 = 1*CONTROL_ON*(kp_rate_roll * ratesErrors[1]);
 	}
 	
 	
@@ -167,19 +176,24 @@ void FlightControl::control(float targetAngles[], float angles[], float rates[],
 	//U1 = map_f(throttle, MAP_RADIO_LOW , MAP_RADIO_HIGH, 0, 80);
 	U1 = throttle*0.10;
 	
-	U4=CONTROL_ON*0;	
+	U4=CONTROL_ON*0;
 	
-		 //Serial.print(ratesErrors[0]); 
+		
+			 //Serial.print(ratesErrors[0]); 
+//Serial.print("   "); 
+		 //Serial.print(U2); 
 //Serial.print("   "); 
 
-		
+	//Serial.println("   "); 	
 		
 	//Roll is control by M2 and M4
 	//Ptich is control by M1 and M3
+		
+	w2=  1* (U1 + U2 + U4);  // vibbbbb 
 	w1 = 1* (U1 + U3 - U4); //ok
-	w4 = 1* (U1 + U2 + U4); //ok
+	w4 = 1* (U1 - U2 + U4); //ok
 	w3 = 1* (U1 - U3 - U4);  //
-	w2=  1* (U1 - U2 + U4);  // vibbbbb 
+
 	//swith 2 et 4
 
 
@@ -223,9 +237,10 @@ void FlightControl::control(float targetAngles[], float angles[], float rates[],
 
 
 	motors.setMotorSpeed(1, 1*w1);
+	motors.setMotorSpeed(2, 1*w2);
 	motors.setMotorSpeed(3, 1*w3);
 	motors.setMotorSpeed(4, 1*w4);
-	motors.setMotorSpeed(2, 1*w2);
+
 	
 
 	counter_angle_loop++;

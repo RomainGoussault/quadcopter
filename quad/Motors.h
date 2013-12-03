@@ -31,9 +31,9 @@
 
 #define MIN_MOTOR_SPEED_PWM 50
 #define MAX_MOTOR_SPEED_PWM 250
+
 #define MIN_MOTOR_SPEED_CONTROL 0
 #define MAX_MOTOR_SPEED_CONTROL 100
-
 
 
 //motor1: first white, motor2 second white

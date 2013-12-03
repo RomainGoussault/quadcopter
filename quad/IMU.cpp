@@ -45,7 +45,7 @@ void IMU::init()
   
 
  accelgyro.getMotion6(&accX, &accY, &accZ, &gyroX, &gyroY, &gyroZ);  //Set Starting angles
- accelgyro.setDLPFMode(2);  //Set Low Pass filter 
+ accelgyro.setDLPFMode(3);  //Set Low Pass filter 
 
 
 	accXangle = (atan2f(accX,accZ)+PI)*RAD_TO_DEG;
@@ -113,19 +113,19 @@ bool IMU::processAngles(float angles[],float rates[])
 	
 	
 	// ANGULAR RATES
-	gyroXrate = -(float) (gyroX-gyroXoffset)/131.0;  //140
-	gyroYrate = ((float) (gyroY-gyroYoffset)/131.0);
+	gyroXrate = (float) (gyroX-gyroXoffset)/131.0;  //140
+	gyroYrate = -((float) (gyroY-gyroYoffset)/131.0);
 	gyroZrate = ((float) (gyroZ-gyroZoffset)/131.0);
 
 	//ACC ANGLES
-	accXangle = (atan2f(accXf,accZf)+PI)*RAD_TO_DEG;
-	accYangle = (atan2f(accYf,accZf)+PI)*RAD_TO_DEG; //400
+	accYangle = (atan2f(accXf,accZf)+PI)*RAD_TO_DEG;
+	accXangle = (atan2f(accYf,accZf)+PI)*RAD_TO_DEG; //400
 	
 	
 	// GYRO ANGLES
-	//gyroXangle += gyroXrate*(float)(micros()-timer)/1000000;
-	//gyroYangle += gyroYrate*(float)(micros()-timer)/1000000;
-	//gyroZangle += gyroZrate*(float)(micros()-timer)/1000000;
+	gyroXangle += gyroXrate*(float)(micros()-timer)/1000000;
+	gyroYangle += gyroYrate*(float)(micros()-timer)/1000000;
+	gyroZangle += gyroZrate*(float)(micros()-timer)/1000000;
 	
 	
 	//Complementary filter  //200
@@ -144,11 +144,14 @@ bool IMU::processAngles(float angles[],float rates[])
 	angles[2]=  gyroZangle;
 
 	rates[0]=   -  rac22* gyroXrate + rac22*gyroYrate;
-	rates[1]=  -rac22* gyroXrate - rac22*gyroYrate;
+	rates[1]= - rac22* gyroXrate - rac22*gyroYrate;
 	rates[2]=  gyroZrate;
 	
-	
-
+ //Serial.print(angles[1]); 
+//Serial.print("   "); 
+		 //Serial.print(rates[1]); 
+//Serial.print("   "); 
+	//Serial.println("   "); 	
 	
 
 
@@ -166,7 +169,7 @@ bool IMU::processAngles(float angles[],float rates[])
 		   //Serial.print("  ");
 		   //break;
 	  //case 3:
-	  		//dtostrf(accXangle -180,6,2,StrAnglesvib);	
+	  		//dtostrf(gyroXangle -180,6,2,StrAnglesvib);	
 			//Serial.println(StrAnglesvib);
 		   //j=0;
 		   //break;
