@@ -25,45 +25,43 @@ IMU::IMU()
 
 void IMU::init()
 {
-    // Initialize device
-    Serial.println("Initializing I2C devices...");
-    accelgyro.initialize();
+	// Initialize device
+	Serial.println("Initializing I2C devices...");
+	accelgyro.initialize();
 
-    // Check connection
-    Serial.println("Testing device connections...");
-    Serial.println(accelgyro.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
+	// Check connection
+	Serial.println("Testing device connections...");
+	Serial.println(accelgyro.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
 
-    delay(100); // Wait for sensor to stabilize
+	delay(100); // Wait for sensor to stabilize
 
 	accelgyro.getMotion6(&accX, &accY, &accZ, &gyroX, &gyroY, &gyroZ);  //Set Starting angles
 	accelgyro.setDLPFMode(3);  //Set Low Pass filter 
 
 	accXangle = (atan2f(accX,accZ)+PI)*RAD_TO_DEG;
 	accYangle = (atan2f(accY,accZ)+PI)*RAD_TO_DEG; //400
-  
-    //kalmanX.setAngle(accXangle); 
-    //kalmanY.setAngle(accYangle);
-    //kalmanZ.setAngle(accZangle);
-    
-	 gyroXangle = accXangle;
-	 gyroYangle = accYangle;
-	 gyroZangle = 0;
 
-     alpha_gyro = 0.995; 
+	//kalmanX.setAngle(accXangle); 
+	//kalmanY.setAngle(accYangle);
+	//kalmanZ.setAngle(accZangle);
+
+	gyroXangle = accXangle;
+	gyroYangle = accYangle;
+	gyroZangle = 0;
+
+	alpha_gyro = 0.995; 
 	c = (1-alpha_gyro)*1;     
-     compAngleX = accXangle;   
-     compAngleY = accYangle;
-     compAngleX0 = accXangle;   
+	compAngleX = accXangle;   
+	compAngleY = accYangle;
+	compAngleX0 = accXangle;   
 
-  
-  
 	//Gyro Calibration: Rough guess of the gyro drift at startup
 	float n = 200;
-	
+
 	float sX = 0.0;
 	float sY = 0.0;
 	float sZ = 0.0;	
-	
+
 	for (int i = 0; i < n; i++)
 	{
 		accelgyro.getRotation(&gyroX, &gyroY, &gyroZ);
@@ -71,15 +69,13 @@ void IMU::init()
 		sY += accelgyro.getRotationY();
 		sZ += accelgyro.getRotationZ();
 	}
-	
+
 	gyroXoffset = sX/n;
 	gyroYoffset = sY/n;
 	gyroZoffset = sZ/n;
-	
+
 	j=0;
 }
-
-
 
 bool IMU::processAngles(float angles[],float rates[])
 {			
@@ -123,7 +119,7 @@ bool IMU::processAngles(float angles[],float rates[])
 	rates[1]= - rac22* gyroXrate - rac22*gyroYrate;
 	rates[2]=  gyroZrate;
 		
-	//////* Print Data  for vibration measurements*/
+	//////* Print Data  for vibration measurements*/ //Todo: Extract function
 	//switch (j)
 	  //{
 
