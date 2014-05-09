@@ -55,7 +55,7 @@ void FlightControl::control(float targetAngles[], float angles[], float rates[],
 
 		if (incomingByte == 'P' )
 		{
-			Serial.print("Nouvelle valeur de kp_roll ");
+			Serial.print("Increasing k_roll");
 			kp_roll *= multiplier;
 			kd_roll *= multiplier;
 			ki_roll *= multiplier;
@@ -66,7 +66,7 @@ void FlightControl::control(float targetAngles[], float angles[], float rates[],
 		}
 		if (incomingByte == 'p' )
 		{
-			Serial.print("Nouvelle valeur de kp_roll ");
+			Serial.print("Decreasing k_roll");
 			kp_roll /= multiplier;
 			kd_roll /= multiplier;
 			ki_roll /= multiplier;
@@ -103,7 +103,7 @@ void FlightControl::control(float targetAngles[], float angles[], float rates[],
 	if (RATE_MODE)
 	{
 		//Speed Loop
-		//Only a Proportionnal feedback
+		//Only a Proportionnal feedback for now
 		for (int i = 0; i < 2 ; i++)
 		{
 			//targetRate[i] = targetAngles[i];
