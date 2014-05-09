@@ -19,9 +19,6 @@
 
 #include "Filter.h"
 
-
-
-
 Filter::Filter(){  
 inv_gain = 1/GAIN;
 }
@@ -40,7 +37,3 @@ float Filter::update(float input){
 				 + (-17.5430988560 * yv[6]) + (  6.3057235769 * yv[7]);
 		return  yv[8];
 }
-
-
-
-

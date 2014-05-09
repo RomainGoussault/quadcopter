@@ -16,15 +16,12 @@
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "FlightControl.h"
 #include "Radio.h"
 
-
-
 FlightControl::FlightControl() {
 	
-	//Setting up of the gain
+	//Setting up the gains
 	float ku = 3.0/100;
 	kp_roll= 0.5*ku;
 	ki_roll = 0.001*1.2*ku*2/angle_loop_time*1000000;
@@ -37,10 +34,11 @@ FlightControl::FlightControl() {
 	i_on = false;
 	i_max='0';
 	
+	//incomingByte is used to tune the PID gains through Serial
 	incomingByte = 0;
 	multiplier = 1.1;	
 
-	//the angle loop runs ANGLE_LOOP_DIVIDER times slower than the speed loop
+	//the attitude (angle) loop runs ANGLE_LOOP_DIVIDER times slower than the speed loop
 	angle_loop_time = LOOP_TIME* ANGLE_LOOP_DIVIDER;
 	counter_angle_loop=ANGLE_LOOP_DIVIDER;
 }
@@ -50,7 +48,7 @@ FlightControl::FlightControl() {
 
 void FlightControl::control(float targetAngles[], float angles[], float rates[], float throttle, Motors &motors, bool motorsReady) {
 		
-	//Setting gain of the PID
+	//Setting PID gains
 	if (Serial.available() > 0) 
 	{ 
 		incomingByte = Serial.read();
@@ -122,7 +120,7 @@ void FlightControl::control(float targetAngles[], float angles[], float rates[],
 	}
 	else
 	{
-		//Position Loop
+		//Attitude (Angle) Loop
 		if (counter_angle_loop==ANGLE_LOOP_DIVIDER)
 		{
 			for (int i = 0; i < 2 ; i++)
@@ -136,6 +134,7 @@ void FlightControl::control(float targetAngles[], float angles[], float rates[],
 			}
 			counter_angle_loop=0;
 		}
+		
 		//Speed Loop 
 		for (int i = 0; i < 2 ; i++)
 		{
@@ -150,14 +149,10 @@ void FlightControl::control(float targetAngles[], float angles[], float rates[],
 
 	//U1 = map_f(throttle, MAP_RADIO_LOW , MAP_RADIO_HIGH, 0, 80);
 	U1 = throttle*0.10;
-	U4=CONTROL_ON*0; //No Yaw control for the moment
-	
-		
-
+	U4=CONTROL_ON*0; // TODO: Implement Yaw control
 		
 	//Roll is control by M2 and M4 via U2
-	//Ptich is control by M1 and M3 via U3
-		
+	//Pitch is control by M1 and M3 via U3
 	w2=  1* (U1 + U2 + U4);  // 
 	w1 = 1* (U1 + U3 - U4); //
 	w4 = 1* (U1 - U2 + U4); //
@@ -174,7 +169,6 @@ void FlightControl::control(float targetAngles[], float angles[], float rates[],
 
 	if (w4<0) {
 		w4=0;} 
-
 
 	if (  i_on)
 	{

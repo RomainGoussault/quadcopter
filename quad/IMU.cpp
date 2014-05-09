@@ -16,25 +16,20 @@
   afloat with this program. If not, see <http://www.gnu.org/licenses/>. 
 */
 
-
 #include "IMU.h"
 
 
-
-
-IMU::IMU(){  
- 
+IMU::IMU()
+{  
 }
 
 void IMU::init()
 {
-	
-     
-    // initialize device
+    // Initialize device
     Serial.println("Initializing I2C devices...");
     accelgyro.initialize();
 
-    // verify connection
+    // Check connection
     Serial.println("Testing device connections...");
     Serial.println(accelgyro.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
 
@@ -46,9 +41,9 @@ void IMU::init()
 	accXangle = (atan2f(accX,accZ)+PI)*RAD_TO_DEG;
 	accYangle = (atan2f(accY,accZ)+PI)*RAD_TO_DEG; //400
   
-  //kalmanX.setAngle(accXangle); // Set starting angle
-  //kalmanY.setAngle(accYangle);
-  //kalmanZ.setAngle(accZangle);
+    //kalmanX.setAngle(accXangle); 
+    //kalmanY.setAngle(accYangle);
+    //kalmanZ.setAngle(accZangle);
     
 	 gyroXangle = accXangle;
 	 gyroYangle = accYangle;
@@ -62,7 +57,7 @@ void IMU::init()
 
   
   
-	//Gyro Calibration
+	//Gyro Calibration: Rough guess of the gyro drift at startup
 	float n = 200;
 	
 	float sX = 0.0;
@@ -77,12 +72,9 @@ void IMU::init()
 		sZ += accelgyro.getRotationZ();
 	}
 	
-	
 	gyroXoffset = sX/n;
 	gyroYoffset = sY/n;
 	gyroZoffset = sZ/n;
-	
-
 	
 	j=0;
 }
@@ -98,26 +90,27 @@ bool IMU::processAngles(float angles[],float rates[])
 	accYf = filterY.update(accY);
 	accZf = filterZ.update(accZ);
 	
-	// ANGULAR RATES
-	gyroXrate = (float) (gyroX-gyroXoffset)/131.0;  //140
+	// Angular rates provided by gyro
+	gyroXrate = (float) (gyroX-gyroXoffset)/131.0; //140 µsec on Arduino MEGA
 	gyroYrate = -((float) (gyroY-gyroYoffset)/131.0);
 	gyroZrate = ((float) (gyroZ-gyroZoffset)/131.0);
 
-	//ACC ANGLES
-	accYangle = (atan2f(accXf,accZf)+PI)*RAD_TO_DEG;
-	accXangle = (atan2f(accYf,accZf)+PI)*RAD_TO_DEG; //400
+	//Angle provided by accelerometer
+	//Time taken: 400 µsec on Arduino MEGA
+	accYangle = (atan2f(accXf,accZf)+PI)*RAD_TO_DEG; // 
+	accXangle = (atan2f(accYf,accZf)+PI)*RAD_TO_DEG; 
 	
-	// GYRO ANGLES
+	//Integration of gyro rates to get the angles
 	gyroXangle += gyroXrate*(float)(micros()-timer)/1000000;
 	gyroYangle += gyroYrate*(float)(micros()-timer)/1000000;
 	gyroZangle += gyroZrate*(float)(micros()-timer)/1000000;
 	
-	
-	//Complementary filter  //200
+	//Angle calculation through Complementary filter
+	//Time taken: 200 µsec on Arduino MEGA
 	dt = (float)(micros()-timer)/1000000.0;
-	compAngleX = alpha_gyro*(compAngleX+(gyroXrate*dt))   +   c*accXangle; // Calculate the angle using a Complimentary filter 
-	compAngleY = alpha_gyro*(compAngleY+(gyroYrate*dt))  +   c*accYangle; // Calculate the angle using a Complimentary filter 
-	//compAngleX0 = 0.997*(compAngleX0+(gyroXrate*(float)(micros()-timer)/1000000))   +   (1-0.997)*accXangle; // Calculate the angle using a Complimentary filter 
+	compAngleX = alpha_gyro*(compAngleX+(gyroXrate*dt))   +   c*accXangle; 
+	compAngleY = alpha_gyro*(compAngleY+(gyroYrate*dt))  +   c*accYangle;
+	//compAngleX0 = 0.997*(compAngleX0+(gyroXrate*(float)(micros()-timer)/1000000))   +   (1-0.997)*accXangle; 
 
 	timer = micros(); 
 	
@@ -130,7 +123,7 @@ bool IMU::processAngles(float angles[],float rates[])
 	rates[1]= - rac22* gyroXrate - rac22*gyroYrate;
 	rates[2]=  gyroZrate;
 		
-	//////* Print Data  for vib measurements*/
+	//////* Print Data  for vibration measurements*/
 	//switch (j)
 	  //{
 

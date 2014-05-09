@@ -18,13 +18,10 @@
 #ifndef FlightControl_h
 #define FlightControl_h
 
-
 #include <Utils.h>
 #include <math.h>
 #include <Motors.h>
 #include <Arduino.h>
-
-
 
 //motor1: first white, motor2 second white
 //4 and 2 counter clockwise
@@ -69,13 +66,10 @@ public:
 	long loop_time;
 	char i_max;
 	bool i_on;
- 
-    
-    
+
     
 private:
 
-	
 	float U1, U2, U3, U4;
 	float w1, w2, w3, w4;
 	
@@ -100,14 +94,12 @@ private:
 	float ratesErrorsOld[3];
 	float ratesErrorsSum[3];
 
-
-	//sortie
+	//output
 	float sortiePIDangle[3];
 	float sortiePIDrate[3];
 	
 	float angle_loop_time;
 	int counter_angle_loop;
-
 };
 
 #endif

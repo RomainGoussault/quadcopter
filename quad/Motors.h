@@ -35,7 +35,6 @@
 #define MIN_MOTOR_SPEED_CONTROL 0
 #define MAX_MOTOR_SPEED_CONTROL 100
 
-
 //1 and 3 clockwise (R on my props)
 //4 and 2 counter clockwise
 

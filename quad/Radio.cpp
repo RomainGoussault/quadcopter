@@ -3,7 +3,8 @@
 	Deadzone has been implemented
 	Created by Romain Goussault <romain.goussault@gmail.com> 
 	Library based on the code posted on rcarduino.blogspot.com
-
+	
+	THe radio I used is Turnigy 6CH
 
 	This program is free software: you can redistribute it and/or modify 
 	it under the terms of the GNU General Public License as published by 
@@ -19,16 +20,16 @@
 	along with this program. If not, see <http://www.gnu.org/licenses/>. 
  */
 
-
 #include "Radio.h"
 #include "Utils.h"
 
-// shared variables are updated by the ISR and read by loop.
+// Shared variables are updated by the ISR and read by loop.
 // In loop we immediatly take local copies so that the ISR can keep ownership of the
 // shared ones. To access these in loop
 // we first turn interrupts off with noInterrupts
 // we take a copy to use in loop and the turn interrupts back on
 // as quickly as possible, this ensures that we are always able to receive new signals
+
 volatile uint16_t unCh1InShared;
 volatile uint16_t unCh2InShared;
 volatile uint16_t unCh3InShared;
@@ -36,10 +37,7 @@ volatile uint16_t unCh4InShared;
 volatile uint16_t unCh5InShared;
 volatile uint16_t unCh6InShared;
 
-
-
 extern volatile uint8_t bUpdateFlagsShared;
-
 
 // These are used to record the rising edge of a pulse in the calcInput functions
 uint32_t ulCh1Start;
@@ -55,8 +53,6 @@ uint16_t unCh3In;
 uint16_t unCh4In;
 uint16_t unCh5In;
 uint16_t unCh6In;
-
-
 
 bool getRadio(int pChannels[])
 { 
@@ -83,17 +79,18 @@ bool getRadio(int pChannels[])
 	}
 	
 	//value in [MAP_RADIO_LOW - MAP_RADIO_HIGH]
-	//The following expressions replace the map expression but are much faster at run-time
+	//The following expressions replace the mapping expression  (THey are much faster to run)
 	 ch1 = -1.017*unCh1In+2035;
 	 ch2 = 0.9685*unCh2In-922;
 	 ch3 = 0.9335*unCh3In-811;
 	 ch4 = -0.925*unCh4In+1814;
+	 
+	 //TODO: Improve efficiency of mapping function
 	 //ch1 = MAP_RADIO_HIGH 	- map(1000, MIN_1, MAX_1, MAP_RADIO_LOW-DEADZONE*DEADZONE_ENABLE, MAP_RADIO_HIGH+DEADZONE*DEADZONE_ENABLE);
 	//ch2 = 	map(2000, MIN_2, MAX_2, MAP_RADIO_LOW-DEADZONE*DEADZONE_ENABLE	, MAP_RADIO_HIGH+DEADZONE*DEADZONE_ENABLE);
 	// ch3 = map(2000, 	MIN_3, MAX_3, MAP_RADIO_LOW-DEADZONE*DEADZONE_ENABLE, 	MAP_RADIO_HIGH+DEADZONE*DEADZONE_ENABLE);
 	// ch4 = MAP_RADIO_HIGH - 	map(1000, MIN_4, MAX_4, MAP_RADIO_LOW-DEADZONE*DEADZONE_ENABLE	, MAP_RADIO_HIGH+DEADZONE*DEADZONE_ENABLE);
 
-		
 	// 0 or 1 for channels 5 or 6
 	if (unCh5In >= MID_5)
 	{ch5=1;}
@@ -138,8 +135,6 @@ bool getRadio(int pChannels[])
 			pChannels[1] = pChannels[1] - DEADZONE;
 		}
 	}
-
-
 
 	if(PRINT_ALL_CHANNELS)
 	{
