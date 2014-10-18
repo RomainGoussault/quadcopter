@@ -32,7 +32,8 @@ float map_f_s(int  x, int  in_min, int out_min, int ratio)
 	return (x - in_min) / ratio + out_min;
 }
 
-float mean(int m, float a[]) {
+float mean(int m, float a[])
+{
     int sum=0, i;
     for(i=0; i<m; i++)
         sum+=a[i];
@@ -40,7 +41,8 @@ float mean(int m, float a[]) {
 }
 
 // Insert sort. From "whistler" - http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1283456170/0
-void isort(int *a, byte n){
+void isort(int *a, byte n)
+{
 	for (int i = 1; i < n; ++i){
 		int j = a[i];
 		int k;
@@ -51,20 +53,23 @@ void isort(int *a, byte n){
 	}
 }
 
-int findMedian(int *data, byte arraySize){
+int findMedian(int *data, byte arraySize)
+{
 	isort(data, arraySize);
 	return data[arraySize/2];
 }
 
 // Low pass filter, kept as regular C function for speed
-float filterSmooth(float currentData, float previousData, float smoothFactor){
+float filterSmooth(float currentData, float previousData, float smoothFactor)
+{
 	if (smoothFactor != 1.0) //only apply time compensated filter if smoothFactor is applied
 		return (previousData * (1.0 - smoothFactor) + (currentData * smoothFactor)); 
 	else
 		return currentData; //if smoothFactor == 1.0, do not calculate, just bypass!
 }
 
-int8_t sgn(int val) {
+int8_t sgn(int val) 
+{
 	if (val < 0) return -1;
 	if (val==0) return 0;
 	return 1;

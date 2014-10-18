@@ -24,7 +24,8 @@ inv_gain = 1/GAIN;
 }
 
 
-float Filter::update(float input){
+float Filter::update(float input)
+{
 
 	xv[0] = xv[1]; xv[1] = xv[2]; xv[2] = xv[3]; xv[3] = xv[4]; xv[4] = xv[5]; xv[5] = xv[6]; xv[6] = xv[7]; xv[7] = xv[8]; 
 	xv[8] = input  * inv_gain;

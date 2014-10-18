@@ -38,20 +38,13 @@
 #define  YAW_OFFSET 0
 
 
-
-
-
-
 class IMU
 {
-
   public:
 
   IMU();
   void init();  
   bool processAngles(float angles[],float rates[] );
-
-
 
     
   private:
@@ -63,9 +56,9 @@ class IMU
 	int16_t accX, accY, accZ;
 	int16_t gyroX, gyroY, gyroZ;
 
-	float accXangle, accYangle, accZangle; // Angle calculate using the accelerometer
-	float gyroXangle, gyroYangle, gyroZangle; // Angle calculate using the gyro
-	float kalAngleX, kalAngleY, kalAngleZ; // Calculate the angle using a Kalman filter
+	float accXangle, accYangle, accZangle; // Angle calculated using the accelerometer
+	float gyroXangle, gyroYangle, gyroZangle; // Angle calculated using the gyro
+	float kalAngleX, kalAngleY, kalAngleZ; // Angle calculated using a Kalman filter
 	float compAngleX, compAngleY, compAngleX0;
 
 	MPU6050 accelgyro;
@@ -85,8 +78,6 @@ class IMU
 	Filter filterX;
 	Filter filterY;	
 	Filter filterZ;
-
-	
 	
 	float alpha_gyro;
     float c;

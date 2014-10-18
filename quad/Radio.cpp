@@ -79,7 +79,7 @@ bool getRadio(int pChannels[])
 	}
 	
 	//value in [MAP_RADIO_LOW - MAP_RADIO_HIGH]
-	//The following expressions replace the mapping expression  (THey are much faster to run)
+	//The following expressions replace the mapping expression (They are much faster to run)
 	 ch1 = -1.017*unCh1In+2035;
 	 ch2 = 0.9685*unCh2In-922;
 	 ch3 = 0.9335*unCh3In-811;
@@ -146,7 +146,6 @@ bool getRadio(int pChannels[])
 	return true;
 }
 
-
 void updateRadio()
 {
 	unCh1In = unCh1InShared;
@@ -159,12 +158,6 @@ void updateRadio()
 	// clear shared copy of updated flags as we have already taken the updates
 	bUpdateFlagsShared = 0;
 }
-
-
-
-
-
-
 
 // simple interrupt service routine
 void calcCh1()
@@ -180,8 +173,6 @@ void calcCh1()
 	}
 }
 
-
-
 void calcCh2()
 {
 	if(digitalRead(CH2_IN_PIN) == HIGH)
@@ -195,8 +186,6 @@ void calcCh2()
 	}
 }
 
-
-
 void calcCh3()
 {
 	if(digitalRead(CH3_IN_PIN) == HIGH)
@@ -209,8 +198,6 @@ void calcCh3()
 		bUpdateFlagsShared |= CH3_FLAG;
 	}
 }
-
-
 
 void calcCh4()
 {
@@ -240,8 +227,6 @@ void calcCh5()
 	}
 }
 
-
-
 void calcCh6()
 {
 	if(digitalRead(CH6_IN_PIN) == HIGH)
@@ -254,5 +239,3 @@ void calcCh6()
 		bUpdateFlagsShared |= CH6_FLAG;
 	}
 }
-
-

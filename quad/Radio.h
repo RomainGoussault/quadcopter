@@ -64,7 +64,6 @@
 
 #define CH5_OFF 1500
 
-
 #define MAP_RADIO_HIGH 1000
 #define MAP_RADIO_LOW 0
 #define MAP_RADIO_MID (MAP_RADIO_HIGH + MAP_RADIO_LOW)/2
@@ -76,12 +75,8 @@
 
 #define DEADZONE (MAP_RADIO_HIGH - MAP_RADIO_LOW ) * DEADZONE_PERCENT
 
-
-
-
 void updateRadio();
 bool getRadio(int pChannels[]);
-
 
 void calcCh1();
 void calcCh2();

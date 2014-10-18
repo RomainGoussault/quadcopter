@@ -1,5 +1,5 @@
 /*
-  Filter.h - Low pass filter
+  Filter.h - Low pass filter 
   Created by Romain Goussault <romain.goussault@gmail.com>
   Based on http://www-users.cs.york.ac.uk/~fisher/mkfilter/trad.html
   
@@ -32,7 +32,6 @@ class Filter
 
     Filter();
     float update(float input);
-
     
   private:
 

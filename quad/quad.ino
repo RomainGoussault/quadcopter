@@ -79,12 +79,10 @@ bool motorsReadyOld = false;
 bool motorsOn = false;
 
 
-
 //FlightControl
 FlightControl flightControl;
 float targetAngles[3];
 float throttle;
-
 
 
 //Measuring time
@@ -94,12 +92,10 @@ int freq;
 double deltaF;
 
 
-
 //Warning LED
 bool green_led;
 bool yellow_led;
 bool red_led;
-
 
 
 //Printing
@@ -118,7 +114,6 @@ const int frequency_print_offset = 4;
 const int angle_print_offset =  frequency_print_offset+7;
 const int motor_print_offset = angle_print_offset+17;
 const int control_print_offset = motor_print_offset+7;
-
 
 
 void setup()
@@ -161,22 +156,17 @@ void setup()
 	imu.init();
 	motors.init();
 	
-	
 	//End of the setup phase
 	Serial.print("Setup done");
 	calibrating = false;
 }
 
 
-
-
-
 void loop()
 {	
 	// Measure loop rate
 	start_loop = micros();
-	freq =1000000/loop_time;
-
+	freq = 1000000/loop_time;
 
 	//======================================================================================
 	//                                   Radio
@@ -188,18 +178,17 @@ void loop()
 		updateRadio();
 		interrupts();
 	}
+	
 	radio_on = getRadio(RadioChannels);
-
 
 	//======================================================================================
 	//                                   IMU
 	//======================================================================================
 	if (! (imu.processAngles(angles, rates))  ) //continue only the data from the IMU is acceptable
-		{
+	{
 			IMU_problem = true;
 			Serial.print( "    IMU PROBLEM   ");
-		}
-
+	}
 
 	//=======================================================================================
 	//                                    MOTORS
@@ -216,15 +205,15 @@ void loop()
 	}
 		
 	motors.setMotorsOn(motorsOn);
-	ch5_old=RadioChannels[5];
+	ch5_old = RadioChannels[5];
 	motorsReadyOld = motorsReady;
 
 	if(motorsReady)
 	{	
 		//The following expressions replace the map expression. They are much faster at run-time
-		  targetAngles[0] = RadioChannels[4]*0.03-15;
-          targetAngles[1] = RadioChannels[2]*0.03-15;
-          targetAngles[2] = RadioChannels[3]*0.36-180;
+        targetAngles[0] = RadioChannels[4]*0.03-15;
+        targetAngles[1] = RadioChannels[2]*0.03-15;
+        targetAngles[2] = RadioChannels[3]*0.36-180;
 		
 		throttle = RadioChannels[1];
 		
@@ -246,10 +235,10 @@ void loop()
 	 * Info includes: frequency of the main loop, angles from the IMU, motors commands and PID coeff
 	 * At each loop only a fraction of the whole "quadcopter status" is printed to save time
 	*/
-	switch (print_counter)
-	  {
+    switch (print_counter)
+    {
 
-		//Frequency print
+        //Frequency print
 	  case 1: 
 		   Serial.print("f ");  //64 µs
 		   break;
@@ -257,13 +246,13 @@ void loop()
 		   itoa(freq,Strfreq,10);
 		   break;
 	  case 3:
-		   Serial.print(Strfreq);  //
+		   Serial.print(Strfreq);
 		   break;
 	  case 4:
 		   Serial.print("    ");  
 		   break;
  		    
-		//Angles print
+        //Angles print
 	  case frequency_print_offset+1: //
 		   dtostrf(angles[0],6,2,StrAngles);
 		   break;
@@ -288,22 +277,23 @@ void loop()
 		   
 		//Motors print
 	  case angle_print_offset+1: //13
-			if (motorsReady)
-			{
-				if (motorsOn)
-				{
-					strncpy(StrMotor, StrMotorOn, sizeof(StrMotor) - 1);
-				}
-				else
-				{
-					strncpy(StrMotor, StrMotorReady, sizeof(StrMotor) - 1);
-				}
-			}
-			else
-			{
-				strncpy(StrMotor, StrMotorOff, sizeof(StrMotor) - 1);
-			}
-			break;			
+        if (motorsReady)
+		{
+            if (motorsOn)
+            {
+	            strncpy(StrMotor, StrMotorOn, sizeof(StrMotor) - 1);
+            }
+            else
+            {
+	            strncpy(StrMotor, StrMotorReady, sizeof(StrMotor) - 1);
+            }
+		}
+		else
+		{
+			strncpy(StrMotor, StrMotorOff, sizeof(StrMotor) - 1);
+		}
+		break;
+				
 	  case angle_print_offset+2:
 		   Serial.print(StrMotor);  //
 		   break;
@@ -389,10 +379,8 @@ void loop()
 		   print_counter=1;
 		   break;
 	  }
+	  
 	 print_counter++;
-	 
-	 
-	 
 
 	while ((micros() - start_loop)<LOOP_TIME)
 	{
@@ -401,6 +389,3 @@ void loop()
 	
 	loop_time =  micros() - start_loop; //Calculating loop_time to calculate frequency
 }
-
-
-

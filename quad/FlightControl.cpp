@@ -19,8 +19,8 @@
 #include "FlightControl.h"
 #include "Radio.h"
 
-FlightControl::FlightControl() {
-	
+FlightControl::FlightControl()
+{
 	//Setting up the gains
 	float ku = 3.0/100;
 	kp_roll= 0.5*ku;
@@ -43,11 +43,8 @@ FlightControl::FlightControl() {
 	counter_angle_loop=ANGLE_LOOP_DIVIDER;
 }
 
-
-
-
-void FlightControl::control(float targetAngles[], float angles[], float rates[], float throttle, Motors &motors, bool motorsReady) {
-		
+void FlightControl::control(float targetAngles[], float angles[], float rates[], float throttle, Motors &motors, bool motorsReady)
+{
 	//Setting PID gains
 	if (Serial.available() > 0) 
 	{ 
@@ -132,6 +129,7 @@ void FlightControl::control(float targetAngles[], float angles[], float rates[],
 				anglesErrorsOld[i] = anglesErrors[i];
 				sortiePIDangle[i] = kp_roll * anglesErrors[i] + anglesErrorsSum[i] + anglesErrorsD[i];	
 			}
+			
 			counter_angle_loop=0;
 		}
 		
@@ -158,19 +156,27 @@ void FlightControl::control(float targetAngles[], float angles[], float rates[],
 	w4 = 1* (U1 - U2 + U4); //
 	w3 = 1* (U1 - U3 - U4);  //
 
-	if (w1<0) {
-		w1=0;} 
+	if (w1<0)
+	{
+		w1=0;
+	} 
 
-	if (w2<0) {
-		w2=0;}
+	if (w2<0)
+	{
+		w2=0;
+	}
 
-	if (w3<0) {
-		w3=0;}
+	if (w3<0)
+	{
+		w3=0;
+	}
 
-	if (w4<0) {
-		w4=0;} 
+	if (w4<0)
+	{
+		w4=0;
+	} 
 
-	if (  i_on)
+	if (i_on)
 	{
 		i_max='1';
 	}
@@ -186,6 +192,3 @@ void FlightControl::control(float targetAngles[], float angles[], float rates[],
 
 	counter_angle_loop++;
 }
-
-
-

@@ -30,7 +30,7 @@
 #define RATE_MODE 0
 #define CONTROL_ON 1
 #define ANGLE_LOOP_DIVIDER 7 //the angle loop runs ANGLE_LOOP_DIVIDER times slower than the speed loop
-#define  LOOP_TIME 2630
+#define LOOP_TIME 2630
 
 
 class FlightControl
@@ -80,7 +80,6 @@ private:
 	float multiplier;
 	
 	int max_I_term;
-	
 	
 	// Angles errors
 	float anglesErrors[3];

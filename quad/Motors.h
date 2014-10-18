@@ -38,11 +38,9 @@
 //1 and 3 clockwise (R on my props)
 //4 and 2 counter clockwise
 
-
 class Motors
 {
   public:
-
     Motors();
     void init();
     void allStop();
