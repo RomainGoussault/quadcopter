@@ -1,0 +1,8 @@
+bases/
+.metadata/
+.lib*
+.dep*
+*.o
+*.hex
+TODO
+trash/
