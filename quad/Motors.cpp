@@ -41,7 +41,7 @@ void Motors::allStop()
 	setAllSpeed(0);
 }
 
-void Motors::setMotorsOn(bool b)
+void Motors::setMotorsOn(const bool b)
 {
 	motorsOn = b;
 }
@@ -64,12 +64,12 @@ void Motors::setMotorSpeed(const byte motor, float speed)
 	motor_speeds[motor-1] = speed;
 }
 
-int Motors::getMotorSpeed(byte motor)
+int Motors::getMotorSpeed(const byte motor) const
 {
     return motor_speeds[motor-1];
 }
 
-void Motors::setAllSpeed(float speed)
+void Motors::setAllSpeed(const float speed)
 {
      for (byte motor = 1; motor <= MOTOR_COUNT; motor++)
      {

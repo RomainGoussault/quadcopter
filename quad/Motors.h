@@ -45,10 +45,9 @@ class Motors
     void init();
     void allStop();
     void setMotorSpeed(const byte, float);
-    int getMotorSpeed(byte);
-    void setAllSpeed(float);
-    void setMotorsOn(bool);
- 
+    int getMotorSpeed(const byte) const;
+    void setAllSpeed(const float);
+    void setMotorsOn(const bool);
      
   private:
     int motors[MOTOR_COUNT];
