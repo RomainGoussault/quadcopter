@@ -1,0 +1,29 @@
+language: cpp
+
+compiler:
+  - gcc
+  
+before_install:
+ # g++4.8.1
+ - if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
+ - sudo apt-get update -qq
+
+install:
+  # g++4.8.1
+  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
+  
+  # Arduino lib
+  - sudo apt-get install arduino
+
+before_script:
+  - $CXX --version
+  - echo "CXX="$CXX
+  
+script: 
+  - make
+ 
+notifications:
+  email:
+    recipients:
+      - romain.goussault@gmail.com
