@@ -12,7 +12,9 @@ install:
   # Arduino lib
   - sudo apt-get install arduino;
 
-script: 
+script:
+  - ls
+  - cd quad/
   - make
  
 notifications:
