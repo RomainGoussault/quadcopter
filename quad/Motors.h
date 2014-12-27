@@ -44,7 +44,7 @@ class Motors
     Motors();
     void init();
     void allStop();
-    void setMotorSpeed(byte, float);
+    void setMotorSpeed(const byte, float);
     int getMotorSpeed(byte);
     void setAllSpeed(float);
     void setMotorsOn(bool);

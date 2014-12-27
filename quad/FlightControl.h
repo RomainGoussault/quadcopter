@@ -40,7 +40,6 @@ public:
 
 	FlightControl();
 	void control(float targetAngles[], float angles[], float rates[], float throttle, Motors &motors, bool motorsReady);
-	//void getLoopTime(long l);
 
    	//PID coefficients
 	float kp_rate_roll;

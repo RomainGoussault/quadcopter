@@ -56,7 +56,7 @@ void IMU::init()
 	compAngleX0 = accXangle;   
 
 	//Gyro Calibration: Rough guess of the gyro drift at startup
-	float n = 200;
+	int n = 200;
 
 	float sX = 0.0;
 	float sY = 0.0;
@@ -77,7 +77,7 @@ void IMU::init()
 	j=0;
 }
 
-bool IMU::processAngles(float angles[],float rates[])
+bool IMU::processAngles(float angles[], float rates[])
 {			
 	accelgyro.getMotion6(&accX, &accY, &accZ, &gyroX, &gyroY, &gyroZ);  //400µs
 		
@@ -139,12 +139,13 @@ bool IMU::processAngles(float angles[],float rates[])
 	  //}	   
 	//j++;
 
-	if ( abs(angles[0]) < ROLL_MAX_IMU && abs(angles[1]) < PITCH_MAX_IMU  )
+	//Return false if the angle are not in the acceptable range
+	if (abs(angles[0]) < ROLL_MAX_IMU && abs(angles[1]) < PITCH_MAX_IMU)
 	{
-	return true;
+		return true;
 	}
 	else
 	{
-	return false;
+		return false;
 	}
 }

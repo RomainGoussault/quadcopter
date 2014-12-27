@@ -16,7 +16,6 @@
   afloat with this program. If not, see <http://www.gnu.org/licenses/>. 
 */
 
-
 #include <PinChangeInt.h>
 #include <Servo.h>
 #include <Radio.h>
@@ -45,8 +44,6 @@
 
 //Serial speed
 #define  SERIAL_PORT_SPEED  115200
-
-
 
 
 //Radio
@@ -184,7 +181,7 @@ void loop()
 	//======================================================================================
 	//                                   IMU
 	//======================================================================================
-	if (! (imu.processAngles(angles, rates))  ) //continue only the data from the IMU is acceptable
+	if (!(imu.processAngles(angles, rates))) //continue only the data from the IMU is acceptable
 	{
 			IMU_problem = true;
 			Serial.print( "    IMU PROBLEM   ");
@@ -210,7 +207,7 @@ void loop()
 
 	if(motorsReady)
 	{	
-		//The following expressions replace the map expression. They are much faster at run-time
+		//Mapping from radio inputs to target angles
         targetAngles[0] = RadioChannels[4]*0.03-15;
         targetAngles[1] = RadioChannels[2]*0.03-15;
         targetAngles[2] = RadioChannels[3]*0.36-180;

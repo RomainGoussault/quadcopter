@@ -44,14 +44,14 @@ class IMU
 
   IMU();
   void init();  
-  bool processAngles(float angles[],float rates[] );
-
+  bool processAngles(float angles[], float rates[]);
     
   private:
     
-	//Kalman kalmanX; // Create the Kalman instances
+	//Kalman kalmanX;
 	//Kalman kalmanY;
 	//Kalman kalmanZ;
+	
 	/* IMU Data */
 	int16_t accX, accY, accZ;
 	int16_t gyroX, gyroY, gyroZ;
@@ -65,12 +65,12 @@ class IMU
 	uint32_t timer;
 	float gyroXoffset, gyroYoffset, gyroZoffset;
 	
-	float gyroXrate ;
-	float gyroYrate ;
+	float gyroXrate;
+	float gyroYrate;
 	float gyroZrate;
 	
     //float xv[NZEROS+1], yv[NPOLES+1];
-     //float xv1[NZEROS+1], yv1[NPOLES+1];  
+    //float xv1[NZEROS+1], yv1[NPOLES+1];  
 	float accXf;
 	float accYf;
 	float accZf;

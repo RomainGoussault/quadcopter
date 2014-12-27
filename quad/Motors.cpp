@@ -46,9 +46,9 @@ void Motors::setMotorsOn(bool b)
 	motorsOn = b;
 }
 
-void Motors::setMotorSpeed(byte motor, float speed){
+void Motors::setMotorSpeed(const byte motor, float speed)
+{
 	//Mapping of the controller speed to the ESC speed
-	//speed = map_f(speed, MIN_MOTOR_SPEED_CONTROL, MAX_MOTOR_SPEED_CONTROL, MIN_MOTOR_SPEED_PWM, MAX_MOTOR_SPEED_PWM);
 	speed = (speed * 2) + MIN_MOTOR_SPEED_PWM - 6;
 
 	//If the speed command is too high we just shut down all the motors
@@ -56,7 +56,7 @@ void Motors::setMotorSpeed(byte motor, float speed){
 	if (speed > 260)
 	{
 		allStop();
-		Serial.print( " Motor command MAX ALL MOTORS STOPPED");
+		Serial.print("Motor speed superior than 260. ALL MOTORS STOPPED");
 		while(1);
 	}
 		
